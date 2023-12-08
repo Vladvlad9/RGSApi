@@ -1,0 +1,8 @@
+{
+  "BOT": {
+    "TOKEN": "5403620291:AAFrLZ_rbWzEDpU8Qja-Qgt6qzo2vSrmuAY",
+    "NGROK_TUNEL_URL": "asd",
+    "ADMINS": [381252111]
+  },
+  "DATABASE": "postgres:postgres@localhost:5432/delete"
+}

@@ -1,0 +1,259 @@
+{% extends 'main.html' %}
+{% block content %}
+<style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .containers {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .form-group input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: #5cb85c;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .form-group input[type="submit"]:hover {
+            background-color: #4cae4c;
+        }
+
+        /* Стили для модального окна */
+        .modal {
+            display: none; /* Скрыть модальное окно по умолчанию */
+            position: fixed; /* Оставаться на месте */
+            z-index: 1; /* Сидеть на вершине */
+            left: 0;
+            top: 0;
+            width: 100%; /* Полная ширина */
+            height: 100%; /* Полная высота */
+            overflow: auto; /* Включить прокрутку, если нужно */
+            background-color: rgb(0,0,0); /* Цвет фона */
+            background-color: rgba(0,0,0,0.4); /* Цвет фона с непрозрачностью */
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto; /* 5% сверху и по центру */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%; /* Может быть больше или меньше, в зависимости от вашего экрана */
+            border-radius: 8px; /* Скругленные углы */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Тень */
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        /* Стили для формы */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .form-group input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: #5cb85c;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .form-group input[type="submit"]:hover {
+            background-color: #4cae4c;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            /* Ваши стили для основного контента */
+        }
+
+
+        .sidebar a {
+            color: white; /* Цвет ссылок */
+            text-decoration: none; /* Убрать подчеркивание у ссылок */
+            display: block; /* Ссылки будут вести себя как блочные элементы */
+            margin-bottom: 10px; /* Отступ между ссылками */
+            list-style-type: none;
+        }
+
+        .sidebar a:hover {
+            background-color: #0055b7; /* Цвет фона ссылок при наведении */
+        }
+
+
+
+
+
+        /* Стили для ссылок внутри меню */
+        .nav-links a {
+          padding: 10px 15px; /* Отступы для ссылок */
+          text-decoration: none; /* Убрать подчеркивание */
+          font-size: 18px; /* Размер шрифта */
+          color: #fff; /* Цвет текста */
+          display: block; /* Блочное отображение */
+          transition: 0.3s; /* Анимация перехода */
+        }
+
+
+        /* Анимация иконки при клике */
+        .burger-icon.active .line1 {
+          transform: rotate(-45deg) translate(-5px, 6px);
+        }
+
+        .burger-icon.active .line2 {
+          opacity: 0;
+        }
+
+        .burger-icon.active .line3 {
+          transform: rotate(45deg) translate(-5px, -6px);
+        }
+
+
+
+        .sidebar nav ul {
+            list-style-type: none; /* Убрать маркеры списка */
+          }
+
+          .sidebar nav ul li {
+            padding: 8px 0; /* Отступы для элементов списка */
+          }
+
+          .sidebar nav ul li a {
+            color: white; /* Цвет ссылок */
+            text-decoration: none; /* Убрать подчеркивание */
+            transition: color 0.3s; /* Анимация цвета ссылок */
+          }
+
+          .sidebar nav ul li a:hover {
+            color: #ffcc00; /* Цвет ссылок при наведении */
+          }
+
+          /* Адаптивные стили для мобильных устройств */
+          @media screen and (max-width: 768px) {
+            .sidebar {
+              display: none; /* Скрыть боковую панель на мобильных устройствах */
+            }
+          }
+
+        textarea#message {
+            max-width: 100%; /* Ограничивает ширину textarea максимальной шириной контейнера */
+            width: 100%; /* Задает начальную ширину textarea */
+            box-sizing: border-box; /* Учитывает padding и border в общей ширине элемента */
+        }
+
+    </style>
+
+<div class="main-content">
+        <div class="containers">
+        <form id="messageForm" action="/pages/send_message/" method="post">
+            <div class="form-group">
+                <label for="message">Сообщение:</label>
+            <textarea id="message" name="message" placeholder="Введите сообщение"></textarea>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Отправить">
+            </div>
+        </form>
+    </div>
+
+        <!-- Модальное окно -->
+        <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">×</span>
+            <p>Сообщение отправлено!</p>
+        </div>
+    </div>
+    </div>
+
+    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+
+<script>
+        // Получите модальное окно
+        let modal = document.getElementById('myModal');
+        // Получите элемент <span>, который закрывает модальное окно
+        let span = document.getElementsByClassName("close")[0];
+        // Получите форму
+        let form = document.getElementById('messageForm');
+
+        // Функция для отображения модального окна
+        function showModal() {
+            modal.style.display = "block";
+        }
+        function toggleMenu() {
+          let menu = document.querySelector('.nav-links');
+          let icon = document.querySelector('.burger-icon');
+          menu.classList.toggle('active');
+          icon.classList.toggle('active');
+        }
+
+        // Обработчик отправки формы
+        form.onsubmit = function(event) {
+            event.preventDefault(); // Предотвратить стандартное поведение формы
+            let formData = new FormData(form);
+            fetch('/pages/send_message/', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                showModal(); // Показать модальное окно
+                console.log(data); // Вывести ответ сервера в консоль
+            })
+            .catch(error => console.error('Ошибка:', error));
+        };
+
+        // Закрыть модальное окно при нажатии на <span> (x)
+        span.onclick = function() {
+            modal.style.display = "none";
+        };
+
+        // Закрыть модальное окно при нажатии вне его
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        };
+    </script>
+{% endblock %}
+
