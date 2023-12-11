@@ -1,6 +1,8 @@
 from sqladmin import ModelView
 from sqladmin import BaseView, expose
 from models import User, Admin, Dialogue
+from fastapi import Request
+from fastapi.templating import Jinja2Templates
 
 
 class UserAdmin(ModelView, model=User):
@@ -78,6 +80,6 @@ class TelegramMessageAdmin(BaseView):
     name_plural = "Рассылка"
 
     @expose("/mailing", methods=["GET"])
-    async def report_page(self, request):
-        return await self.templates.TemplateResponse(request, "/opt/git/RGSApi/templates/mailing.html", )
+    async def report_page(self, request: Request):
+        return await self.templates.TemplateResponse(request, "mailing.html", )
 
