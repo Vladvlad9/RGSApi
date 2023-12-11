@@ -5,6 +5,24 @@ from fastapi import Request
 from fastapi.templating import Jinja2Templates
 
 
+class ReportView(BaseView):
+    name = "Report Page"
+    icon = "fa-solid fa-chart-line"
+
+    @expose("/report", methods=["GET"])
+    async def report_page(self, request):
+        # async with engine.begin() as conn:
+        #     await conn.run_sync(Base.metadata.create_all)
+
+        users_count = 1
+
+        return await self.templates.TemplateResponse(
+            request,
+            "report.html",
+            context={"users_count": users_count},
+        )
+
+
 class UserAdmin(ModelView, model=User):
     column_list = [User.id, User.user_id, User.phone]
 
