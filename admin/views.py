@@ -15,7 +15,7 @@ class ReportView(BaseView):
         return await self.templates.TemplateResponse(
             request,
             "report.html",
-            context={"users_count": 1},
+            context={"users_count": 11},
         )
 
 
