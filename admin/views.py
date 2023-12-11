@@ -11,15 +11,11 @@ class ReportView(BaseView):
 
     @expose("/report", methods=["GET"])
     async def report_page(self, request):
-        # async with engine.begin() as conn:
-        #     await conn.run_sync(Base.metadata.create_all)
-
-        users_count = 1
 
         return await self.templates.TemplateResponse(
             request,
             "report.html",
-            context={"users_count": users_count},
+            context={"users_count": 1},
         )
 
 
