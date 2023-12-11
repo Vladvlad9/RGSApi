@@ -11,12 +11,8 @@ class ReportView(BaseView):
 
     @expose("/report", methods=["GET"])
     async def report_page(self, request):
-
-        return await self.templates.TemplateResponse(
-            request,
-            "report.html",
-            context={},
-        )
+        users_count = 1
+        return await self.templates.TemplateResponse("report.html", {"request": request, "context": {"users_count": users_count}})
 
 
 class UserAdmin(ModelView, model=User):
