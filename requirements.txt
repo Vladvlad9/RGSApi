@@ -37,3 +37,4 @@ yarl==1.9.3
 
 sqladmin~=0.16.0
 httpx~=0.25.2
+passlib~=1.7.4

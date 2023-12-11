@@ -4,8 +4,6 @@ from typing import Annotated
 from sqlalchemy import Boolean, BigInteger, String, DateTime, Integer, Column
 from sqlalchemy.orm import declarative_base
 
-
-
 Base = declarative_base()
 #
 # intPK = Annotated[int, mapped_column(primary_key=True)]
@@ -60,3 +58,11 @@ class TelegramMessage(Base):
     __tablename__ = 'telegram_message'
 
     id = Column(Integer, primary_key=True)
+
+
+class AdminWebs(Base):
+    __tablename__ = 'admin_webs'
+
+    id = Column(Integer, primary_key=True)
+    email = Column(String)
+    password = Column(String)

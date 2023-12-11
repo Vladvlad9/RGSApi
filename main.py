@@ -2,13 +2,15 @@ import uvicorn
 from fastapi import FastAPI, Request
 from starlette.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from starlette.responses import RedirectResponse
+
+from admin.Authentication import authentication_backend
 from admin.views import UserAdmin, AdminAdmin, TelegramMessageAdmin, DialogAdmin
 from config import CONFIG
 from models.engine import ASYNC_ENGINE
 from fastapi.templating import Jinja2Templates
 from routers.pages.pages_rout import router as pages_routers
 from sqladmin import Admin
-
 WEBHOOK_PATH = f"/bot/{CONFIG.BOT.TOKEN}"
 WEBHOOK_URL = f"{CONFIG.BOT.NGROK_TUNEL_URL}{WEBHOOK_PATH}"
 
@@ -16,9 +18,11 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="./templates")
 
-admin = Admin(app, ASYNC_ENGINE)
+admin = Admin(app, ASYNC_ENGINE, authentication_backend=authentication_backend)
+admin.title = "Панель администратора"
 
 app.include_router(pages_routers)
+
 
 admin.add_view(UserAdmin)
 admin.add_view(AdminAdmin)
@@ -41,7 +45,8 @@ async def on_startup():
 
 @app.get("/")
 async def root(request: Request):
-    return templates.TemplateResponse("main.html", {"request": request})
+    # return templates.TemplateResponse("main.html", {"request": request})
+    return RedirectResponse("/admin")
 
 
 @app.get("/hello/{name}")

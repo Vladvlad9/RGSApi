@@ -1,4 +1,4 @@
-{% extends 'main.html' %}
+{% extends 'list.html' %}
 
 {% block content %}
 <style>
@@ -23,46 +23,39 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    let ctx = document.getElementById('chart1').getContext('2d');
-    ctx.canvas.parentNode.style.height = "600px"
-    ctx.canvas.parentNode.style.width = "600px"
-
-    let myChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь'],
-            datasets: [{
-                label: 'Статистика по месяцам',
-                data: "{{ stats.data | tojson }}",
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(255, 206, 86, 0.2)',
-                    'rgba(75, 192, 192, 0.2)',
-                    'rgba(153, 102, 255, 0.2)',
-                    'rgba(255, 159, 64, 0.2)'
-                ],
-                borderColor: [
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(153, 102, 255, 1)',
-                    'rgba(255, 159, 64, 1)'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-        responsive: true, // Добавлено для адаптивности
-        maintainAspectRatio: false, // Добавлено для сохранения пропорций
+    const ctx = document.getElementById('chart1').getContext('2d');
+    const chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: ['12 Ноя', '13 Ноя', '14 Ноя', '15 Ноя', '16 Ноя', '17 Ноя', '18 Ноя', '19 Ноя', '20 Ноя', '21 Ноя', '22 Ноя', '23 Ноя', '24 Ноя', '25 Ноя', '26 Ноя', '27 Ноя', '28 Ноя', '29 Ноя', '30 Ноя', '1 Дек', '2 Дек', '3 Дек', '4 Дек', '5 Дек', '6 Дек', '7 Дек', '8 Дек', '9 Дек', '10 Дек', '11 Дек'],
+        datasets: [{
+            label: 'Количество просмотров',
+            data: [1, 2, 1.5, 3, 4, 3.5, 3, 2.5, 2, 1, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 3.5, 3, 2.5, 2, 1.5, 1, 0.5, 1, 1.5, 2, 2.5, 3], // Замените эти данные на ваши реальные значения
+            backgroundColor: 'rgba(0, 0, 0, 0.1)',
+            borderColor: 'rgba(0, 0, 0, 1)',
+            borderWidth: 1,
+            pointBackgroundColor: 'rgba(0, 0, 0, 1)',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: 'rgba(0, 0, 0, 1)'
+        }]
+    },
+    options: {
         scales: {
             y: {
                 beginAtZero: true
             }
+        },
+        tooltips: {
+            mode: 'index',
+            intersect: false
+        },
+        hover: {
+            mode: 'nearest',
+            intersect: true
         }
     }
-    });
+});
 </script>
 {% endblock %}
 

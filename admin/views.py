@@ -1,6 +1,31 @@
 from sqladmin import ModelView
+from sqladmin import BaseView, expose
+from sqlalchemy import Column, Integer, String, select, func
 
+from crud import CRUDUsers
 from models import User, Admin, Dialogue, TelegramMessage
+from models.engine import Session1
+
+
+class ReportView(BaseView):
+    name = "Report Page"
+    icon = "fa-solid fa-chart-line"
+
+    @expose("/report", methods=["GET"])
+    async def report_page(self, request):
+        # async with engine.begin() as conn:
+        #     await conn.run_sync(Base.metadata.create_all)
+
+        async with Session1(expire_on_commit=False) as session:
+            stmt = select(func.count(User.id))
+            result = await session.execute(stmt)
+            users_count = result.scalar_one()
+
+        return await self.templates.TemplateResponse(
+            request,
+            "a.html",
+            context={"users_count": users_count},
+        )
 
 
 class UserAdmin(ModelView, model=User):
@@ -21,6 +46,7 @@ class UserAdmin(ModelView, model=User):
 
     can_export = False
     can_view_details = True
+
     # list_template = "list.html"
     # details_template = "details.html"
     # edit_template = "edit.html"
@@ -72,7 +98,15 @@ class DialogAdmin(ModelView, model=Dialogue):
     can_delete = False
 
 
-class TelegramMessageAdmin(ModelView, model=TelegramMessage):
-    pass
+class TelegramMessageAdmin(BaseView):
     name = "Рассылка"
-    list_template = "test.html"
+    name_plural = "Рассылка"
+
+    @expose("/mailing", methods=["GET"])
+    async def report_page(self, request):
+
+        return await self.templates.TemplateResponse(
+            request,
+            "mailing.html",
+        )
+

@@ -5,6 +5,7 @@ import httpx
 
 # from bot import bot
 from config import CONFIG
+from models import User
 
 router = APIRouter(
     prefix='/pages',
@@ -16,7 +17,7 @@ templates = Jinja2Templates(directory='./templates')
 
 @router.get("/stats", name="stats")
 async def get_stats(request: Request):
-    stats_data = {"data": [12]}  # Пример данных
+    stats_data = {"data": [12, 10, 7, 55]}  # Пример данных
     return templates.TemplateResponse("stat.html", {"request": request, "stats": stats_data})
 
 
@@ -39,3 +40,12 @@ async def send_message(message: str = Form(...)):
     async with httpx.AsyncClient() as client:
         await client.post(url, data=payload)
     return {"message": "Сообщение отправлено"}
+
+
+@router.get("/admin/details/{user_id}")
+async def get_user_details(user_id: int, request):
+    user = await User.get(user_id)
+    return templates.TemplateResponse("details.html", {
+        "request": request,
+        "model": user,  # Передаём экземпляр модели в контекст
+    })
