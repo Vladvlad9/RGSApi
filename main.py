@@ -18,7 +18,7 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="./templates")
 
-admin = Admin(app, ASYNC_ENGINE, authentication_backend=authentication_backend)
+admin = Admin(app, ASYNC_ENGINE, templates_dir="templates", authentication_backend=authentication_backend)
 admin.title = "Панель администратора"
 
 app.include_router(pages_routers)
