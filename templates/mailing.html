@@ -1,0 +1,174 @@
+{% extends "layout.html" %}
+{% block content %}
+<style>
+    .textarea{
+        display: block;
+        width: 100%;
+        min-height: 230px;
+        resize: none;
+        padding: 20px;
+        color: #202020;
+        border: 2px solid #3ba51f;
+        border-radius: 5px;
+        outline: none;
+    }
+    .result{
+        width: 100%;
+        text-align: right;
+        margin-top: -30px;
+        padding-right: 10px;
+        color: #737373;
+    }
+    .bnt {
+        display: block;
+        width: 150px;
+        color: white;
+        outline: none;
+        border: none;
+        cursor: pointer;
+        background: #3ba51f;
+        border-radius: 5px;
+        text-align: center;
+        line-height: 35px;
+        text-decoration: none;
+        margin: 0 auto;
+        margin-top: 10px; /* Добавлено для отступа сверху */
+    }
+</style>
+<div class="col-12">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Отправка сообщения</h3>
+        </div>
+        <form id="messageForm" action="/pages/send_message/" method="post">
+            <div class="form-group">
+                <textarea id="message" rows="5" name="message" class="textarea" placeholder="Введите сообщение"></textarea>
+                <p class="result"></p>
+            </div>
+            <div class="form-group" style="padding: 10px">
+                <input type="submit" class="bnt" value="Отправить">
+            </div>
+        </form>
+    </div>
+</div>
+    <!-- Обновленное модальное окно -->
+    <div id="myModal" class="modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Уведомление</h4>
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                </div>
+                <div class="modal-body">
+                    <p>Сообщение успешно отправлено!</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Колонка 1</th>
+                <th scope="col">Дата Отправки</th>
+                <th scope="col">Кому</th>
+                <th scope="col">Колонка 4</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Данные 1</td>
+                <td>Данные 2</td>
+                <td>Данные 3</td>
+                <td>Данные 4</td>
+            </tr>
+            <!-- Добавьте дополнительные строки по мере необходимости -->
+        </tbody>
+    </table>
+
+
+
+<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+<script>
+    function validateArea(){
+        const textarea = document.querySelector(".textarea")
+        const result = document.querySelector(".result")
+        const bnt = document.querySelector(".bnt")
+
+        const limit = 10
+
+        result.textContent = `0 / ${limit}`
+
+        textarea.addEventListener('input', () => {
+            const texLength = textarea.value.length
+            result.textContent = `${texLength} / ${limit}`
+
+            if (texLength > limit){
+                textarea.style.borderColor = "#ff2851"
+                result.style.color = "#ff2851"
+                bnt.disabled = true
+                bnt.style.background = "#ff2851"
+            }else {
+                textarea.style.borderColor = "#31821b"
+                result.style.color = "#31821b"
+                bnt.style.background = "#3ba51f"
+                bnt.disabled = false
+            }
+        })
+
+    }
+    validateArea()
+</script>
+<script>
+        // Получите модальное окно
+        let modal = document.getElementById('myModal');
+        // Получите элемент <span>, который закрывает модальное окно
+        let span = document.getElementsByClassName("close")[0];
+        // Получите форму
+        let form = document.getElementById('messageForm');
+
+        // Функция для отображения модального окна
+        function showModal() {
+            modal.style.display = "block";
+        }
+        function toggleMenu() {
+          let menu = document.querySelector('.nav-links');
+          let icon = document.querySelector('.burger-icon');
+          menu.classList.toggle('active');
+          icon.classList.toggle('active');
+        }
+
+        // Обработчик отправки формы
+        form.onsubmit = function(event) {
+            event.preventDefault(); // Предотвратить стандартное поведение формы
+            let formData = new FormData(form);
+            fetch('/pages/send_message/', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                showModal(); // Показать модальное окно
+                console.log(data); // Вывести ответ сервера в консоль
+            })
+            .catch(error => console.error('Ошибка:', error));
+        };
+
+        // Закрыть модальное окно при нажатии на <span> (x)
+        span.onclick = function() {
+            modal.style.display = "none";
+        };
+
+        // Закрыть модальное окно при нажатии вне его
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        };
+    </script>
+
+{% endblock %}
