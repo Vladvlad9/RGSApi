@@ -1,7 +1,8 @@
 from sqladmin import ModelView
 from sqladmin import BaseView, expose
 from models import User, Admin, Dialogue
-from starlette.templating import Jinja2Templates  # Импортируйте Jinja2Templates
+from fastapi import Request
+
 
 class UserAdmin(ModelView, model=User):
     column_list = [User.id, User.user_id, User.phone]
@@ -22,7 +23,7 @@ class UserAdmin(ModelView, model=User):
     can_export = False
     can_view_details = True
 
-    list_template = "test.html"
+    # list_template = "list.html"
     # details_template = "details.html"
     # edit_template = "edit.html"
     # create_template = "create.html"
@@ -79,9 +80,6 @@ class TelegramMessageAdmin(BaseView):
 
     @expose("/mailing", methods=["GET"])
     async def report_page(self, request):
-        return await self.templates.TemplateResponse(
-            request,
-            "report.html",
-            context={"users_count": 1},
-        )
+        return await self.templates.TemplateResponse(request, "mailing.html")
+
 
