@@ -1,7 +1,8 @@
 from sqladmin import ModelView
 from sqladmin import BaseView, expose
+
+from crud.TelegramMessageCRUD import CRUDTelegramMessage
 from models import User, Admin, Dialogue
-from fastapi import Request
 
 
 class UserAdmin(ModelView, model=User):
@@ -51,7 +52,7 @@ class DialogAdmin(ModelView, model=Dialogue):
     column_list = [Dialogue.id, Dialogue.user_id, Dialogue.admin_id, Dialogue.is_active, Dialogue.who_closed,
                    Dialogue.gradeUser, Dialogue.gradeAdmin]
 
-    name = "Диалог"
+    name_plural = "Диалог"
 
     # list_template = "list.html"
     # details_template = "details.html"
@@ -79,7 +80,20 @@ class TelegramMessageAdmin(BaseView):
     name_plural = "Рассылка"
 
     @expose("/mailing", methods=["GET"])
-    async def report_page(self, request):
-        return await self.templates.TemplateResponse(request, "mailing.html")
+    async def mailing_page(self, request):
+        mailing = await CRUDTelegramMessage.get_all()
+        return await self.templates.TemplateResponse(request,
+                                                     "mailing.html",
+                                                     context={"users_count": mailing})
+
+
+class Statistics(BaseView):
+    name = "Статистика"
+    icon = "fa-solid fa-chart-line"
+
+    @expose("/statistics", methods=["GET"])
+    async def statistics_page(self, request):
+        return await self.templates.TemplateResponse(request,
+                                                     "stat.html",)
 
 

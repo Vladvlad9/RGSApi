@@ -58,6 +58,9 @@ class TelegramMessage(Base):
     __tablename__ = 'telegram_message'
 
     id = Column(Integer, primary_key=True)
+    created_at = Column(DateTime, default=datetime.now)
+    forWhom = Column(String, default="Продавцы")
+    countMessageAdmin = Column(Integer)
 
 
 class AdminWebs(Base):

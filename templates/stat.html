@@ -14,48 +14,152 @@
 </style>
 
 
-<div class="containers">
-    <h1>Статистика</h1>
-    <div class="chart-container">
-        <canvas id="chart1"></canvas>
+
+
+<div class="col-12">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Активные пользователи</h3>
+        </div>
+
+        <div class="btn-group" role="group" aria-label="Базовая группа переключателей радио">
+          <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" checked>
+          <label class="btn btn-outline-primary" for="btnradio1">Сегодня</label>
+
+          <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off">
+          <label class="btn btn-outline-primary" for="btnradio2">Неделя</label>
+
+          <input type="radio" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off">
+          <label class="btn btn-outline-primary" for="btnradio3">Месяц</label>
+        </div>
+
+
+        <div class="container overflow-hidden text-center">
+          <div class="row gx-5">
+            <div class="col">
+
+                <div class="containers">
+                    <h1>Статистика</h1>
+                    <div class="chart-container">
+                        <canvas id="chart1"></canvas>
+                    </div>
+                </div>
+
+            </div>
+            <div class="col">
+
+                <div class="containers">
+                    <h1>Статистика</h1>
+                    <div class="chart-container">
+                        <canvas id="chart2"></canvas>
+                    </div>
+                </div>
+
+            </div>
+          </div>
+        </div>
+
+
     </div>
+
 </div>
+
+
+
+
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    const ctx = document.getElementById('chart1').getContext('2d');
-    const chart = new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: ['12 Ноя', '13 Ноя', '14 Ноя', '15 Ноя', '16 Ноя', '17 Ноя', '18 Ноя', '19 Ноя', '20 Ноя', '21 Ноя', '22 Ноя', '23 Ноя', '24 Ноя', '25 Ноя', '26 Ноя', '27 Ноя', '28 Ноя', '29 Ноя', '30 Ноя', '1 Дек', '2 Дек', '3 Дек', '4 Дек', '5 Дек', '6 Дек', '7 Дек', '8 Дек', '9 Дек', '10 Дек', '11 Дек'],
-        datasets: [{
-            label: 'Количество просмотров',
-            data: [1, 2, 1.5, 3, 4, 3.5, 3, 2.5, 2, 1, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 3.5, 3, 2.5, 2, 1.5, 1, 0.5, 1, 1.5, 2, 2.5, 3], // Замените эти данные на ваши реальные значения
-            backgroundColor: 'rgba(0, 0, 0, 0.1)',
-            borderColor: 'rgba(0, 0, 0, 1)',
-            borderWidth: 1,
-            pointBackgroundColor: 'rgba(0, 0, 0, 1)',
-            pointBorderColor: '#fff',
-            pointHoverBackgroundColor: '#fff',
-            pointHoverBorderColor: 'rgba(0, 0, 0, 1)'
-        }]
-    },
-    options: {
-        scales: {
-            y: {
-                beginAtZero: true
+    let ctx = document.getElementById('chart1').getContext('2d');
+    let ctx2 = document.getElementById('chart2').getContext('2d');
+
+    var myPieChart = new Chart(ctx, {
+        type: 'pie', // тип диаграммы: круговая
+        data: {
+            // Данные для диаграммы
+            labels: ['Категория 1', 'Категория 2'],
+            datasets: [{
+                data: [10, 20], // значения для каждой категории
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.6)', // розовый
+                    'rgba(54, 162, 235, 0.6)', // синий
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)', // розовый
+                    'rgba(54, 162, 235, 1)', // синий
+                ],
+                borderWidth: 1 // толщина границы
+            }]
+        },
+        options: {
+            // Настройки диаграммы
+            responsive: true, // диаграмма будет адаптивной
+            title: {
+                display: true,
+                text: 'Пример круговой диаграммы с отображением значений'
+            },
+            tooltips: {
+                enabled: true, // включаем всплывающие подсказки
+                mode: 'index',
+                intersect: false,
+                callbacks: {
+                    label: function(tooltipItem, data) {
+                        // Форматируем текст подсказки
+                        var label = data.labels[tooltipItem.index] || '';
+                        if (label) {
+                            label += ': ';
+                        }
+                        label += data.datasets[0].data[tooltipItem.index];
+                        return label;
+                    }
+                }
             }
-        },
-        tooltips: {
-            mode: 'index',
-            intersect: false
-        },
-        hover: {
-            mode: 'nearest',
-            intersect: true
         }
-    }
-});
+    });
+
+    var myPieChart = new Chart(ctx2, {
+        type: 'pie', // тип диаграммы: круговая
+        data: {
+            // Данные для диаграммы
+            labels: ['Категория 1', 'Категория 2'],
+            datasets: [{
+                data: [10, 20], // значения для каждой категории
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.6)', // розовый
+                    'rgba(54, 162, 235, 0.6)', // синий
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)', // розовый
+                    'rgba(54, 162, 235, 1)', // синий
+                ],
+                borderWidth: 1 // толщина границы
+            }]
+        },
+        options: {
+            // Настройки диаграммы
+            responsive: true, // диаграмма будет адаптивной
+            title: {
+                display: true,
+                text: 'Пример круговой диаграммы с отображением значений'
+            },
+            tooltips: {
+                enabled: true, // включаем всплывающие подсказки
+                mode: 'index',
+                intersect: false,
+                callbacks: {
+                    label: function(tooltipItem, data) {
+                        // Форматируем текст подсказки
+                        var label = data.labels[tooltipItem.index] || '';
+                        if (label) {
+                            label += ': ';
+                        }
+                        label += data.datasets[0].data[tooltipItem.index];
+                        return label;
+                    }
+                }
+            }
+        }
+    });
 </script>
 {% endblock %}
 

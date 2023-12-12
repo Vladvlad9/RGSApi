@@ -7,8 +7,8 @@ class UserSchema(BaseModel):
     user_id: int = Field(ge=1)
     phone: str = Field(...)
     is_block: bool = Field(default=True)
-    created_at: datetime = Field(default=datetime.utcnow)
-    updated_at: datetime = Field(default=datetime.utcnow)
+    created_at: datetime = Field(default=datetime.utcnow())
+    updated_at: datetime = Field(default=datetime.utcnow())
 
     # @classmethod
     # @field_validator('phone')

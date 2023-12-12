@@ -2,10 +2,13 @@ from fastapi import APIRouter, Request, Form
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 import httpx
+from starlette.responses import RedirectResponse
 
 # from bot import bot
 from config import CONFIG
+from crud.TelegramMessageCRUD import CRUDTelegramMessage
 from models import User
+from schemas.TelegramMessageSchemas import TelegramMessageSchema
 
 router = APIRouter(
     prefix='/pages',
@@ -37,9 +40,11 @@ async def send_message(message: str = Form(...)):
         'text': message,
         'parse_mode': 'HTML'
     }
+    await CRUDTelegramMessage.add(message=TelegramMessageSchema(countMessageAdmin=1))
     async with httpx.AsyncClient() as client:
         await client.post(url, data=payload)
-    return {"message": "Сообщение отправлено"}
+
+    # return RedirectResponse("/admin/mailing")
 
 
 @router.get("/admin/details/{user_id}")

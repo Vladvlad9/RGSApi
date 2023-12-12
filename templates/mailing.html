@@ -73,20 +73,21 @@
 <table class="table">
         <thead>
             <tr>
-                <th scope="col">Колонка 1</th>
+                <th scope="col">№</th>
                 <th scope="col">Дата Отправки</th>
                 <th scope="col">Кому</th>
-                <th scope="col">Колонка 4</th>
+                <th scope="col">Отправлено</th>
             </tr>
         </thead>
         <tbody>
+            {% for data in users_count %}
             <tr>
-                <td>Данные 1</td>
-                <td>Данные 2</td>
-                <td>Данные 3</td>
-                <td>Данные 4</td>
+                <td>{{ data.id }}</td>
+                <td>{{ data.created_at }}</td>
+                <td>{{ data.forWhom }}</td>
+                <td>{{ data.countMessageAdmin }}</td>
             </tr>
-            <!-- Добавьте дополнительные строки по мере необходимости -->
+            {% endfor %}
         </tbody>
     </table>
 
@@ -165,7 +166,7 @@
 
         // Закрыть модальное окно при нажатии вне его
         window.onclick = function(event) {
-            if (event.target == modal) {
+            if (event.target === modal) {
                 modal.style.display = "none";
             }
         };
