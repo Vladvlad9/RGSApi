@@ -2,9 +2,8 @@ from fastapi import APIRouter, Request, Form
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 import httpx
-from starlette.responses import RedirectResponse
+from starlette.responses import RedirectResponse, JSONResponse
 
-# from bot import bot
 from config import CONFIG
 from crud.TelegramMessageCRUD import CRUDTelegramMessage
 from models import User
@@ -46,11 +45,3 @@ async def send_message(message: str = Form(...)):
 
     # return RedirectResponse("/admin/mailing")
 
-
-@router.get("/admin/details/{user_id}")
-async def get_user_details(user_id: int, request):
-    user = await User.get(user_id)
-    return templates.TemplateResponse("details.html", {
-        "request": request,
-        "model": user,  # Передаём экземпляр модели в контекст
-    })

@@ -10,6 +10,7 @@ from config import CONFIG
 from models.engine import ASYNC_ENGINE
 from fastapi.templating import Jinja2Templates
 from routers.pages.pages_rout import router as pages_routers
+from routers.admin.view_router import router as admin_routers
 from sqladmin import Admin
 from starlette.applications import Starlette
 
@@ -26,6 +27,7 @@ admin = Admin(app=app, engine=ASYNC_ENGINE, templates_dir="templates", authentic
 admin.title = "Панель администратора"
 
 app.include_router(pages_routers)
+app.include_router(admin_routers)
 
 admin.add_view(Statistics)
 admin.add_view(UserAdmin)

@@ -2,6 +2,7 @@ from sqladmin import ModelView
 from sqladmin import BaseView, expose
 
 from crud.TelegramMessageCRUD import CRUDTelegramMessage
+from crud.dialogCRUD import CRUDDialog
 from models import User, Admin, Dialogue
 
 
@@ -51,10 +52,10 @@ class AdminAdmin(ModelView, model=Admin):
 class DialogAdmin(ModelView, model=Dialogue):
     column_list = [Dialogue.id, Dialogue.user_id, Dialogue.admin_id, Dialogue.is_active, Dialogue.who_closed,
                    Dialogue.gradeUser, Dialogue.gradeAdmin]
-
+    name = 'диалог'
     name_plural = "Диалог"
 
-    # list_template = "list.html"
+    # list_template = "stat.html"
     # details_template = "details.html"
     # edit_template = "edit.html"
     # create_template = "create.html"
@@ -71,7 +72,7 @@ class DialogAdmin(ModelView, model=Dialogue):
         Dialogue.gradeAdmin: "Оценка администратора"
     }
     can_create = False
-    can_edit = False
+    # can_edit = False
     can_delete = False
 
 
@@ -93,7 +94,27 @@ class Statistics(BaseView):
 
     @expose("/statistics", methods=["GET"])
     async def statistics_page(self, request):
+        gradeUser = 0
+        gradeAdmin = 0
+
+        allDialogs = await CRUDDialog.get_all_td()
+
+        allDialogsLen = len(await CRUDDialog.get_all_td())
+        openDialogs = len(await CRUDDialog.get_all_today(is_active=True))
+        closeDialogs = len(await CRUDDialog.get_all_today(is_active=False))
+
+        for getGrade in allDialogs:
+            gradeUser += getGrade.gradeUser
+            gradeAdmin += getGrade.gradeAdmin
+
         return await self.templates.TemplateResponse(request,
-                                                     "stat.html",)
+                                                     "stat.html",
+                                                     context={
+                                                         "allDialogs": allDialogsLen,
+                                                         "openDialogs": openDialogs,
+                                                         "closeDialogs": closeDialogs,
+                                                         "gradeUser": gradeUser / allDialogsLen,
+                                                         "gradeAdmin": gradeAdmin / allDialogsLen
+                                                     })
 
 
