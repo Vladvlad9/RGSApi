@@ -73,7 +73,7 @@ class DialogAdmin(ModelView, model=Dialogue):
     }
     can_create = False
     # can_edit = False
-    can_delete = False
+    # can_delete = False
 
 
 class TelegramMessageAdmin(BaseView):
@@ -107,14 +107,21 @@ class Statistics(BaseView):
             gradeUser += getGrade.gradeUser
             gradeAdmin += getGrade.gradeAdmin
 
+        try:
+            averageGradeUser = gradeUser / allDialogsLen
+            averageGradeAdmin = gradeAdmin / allDialogsLen
+        except ZeroDivisionError:
+            averageGradeUser = 0
+            averageGradeAdmin = 0
+
         return await self.templates.TemplateResponse(request,
                                                      "stat.html",
                                                      context={
                                                          "allDialogs": allDialogsLen,
                                                          "openDialogs": openDialogs,
                                                          "closeDialogs": closeDialogs,
-                                                         "gradeUser": gradeUser / allDialogsLen,
-                                                         "gradeAdmin": gradeAdmin / allDialogsLen
+                                                         "gradeUser": averageGradeUser,
+                                                         "gradeAdmin": averageGradeAdmin
                                                      })
 
 
