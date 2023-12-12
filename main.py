@@ -18,7 +18,7 @@ WEBHOOK_URL = f"{CONFIG.BOT.NGROK_TUNEL_URL}{WEBHOOK_PATH}"
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="./templates")
+templates = Jinja2Templates(directory="templates")
 
 admin = Admin(app, ASYNC_ENGINE, templates_dir="templates", authentication_backend=authentication_backend)
 admin.title = "Панель администратора"
