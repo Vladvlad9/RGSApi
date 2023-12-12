@@ -1,7 +1,6 @@
 from sqladmin import ModelView
 from sqladmin import BaseView, expose
 from models import User, Admin, Dialogue
-from fastapi import Request
 
 
 class UserAdmin(ModelView, model=User):
@@ -80,5 +79,9 @@ class TelegramMessageAdmin(BaseView):
 
     @expose("/mailing", methods=["GET"])
     async def report_page(self, request):
-        return await self.templates.TemplateResponse(name="mailing.html", request=request)
+        return await self.templates.TemplateResponse(
+            request,
+            "report.html",
+            context={"users_count": 1},
+        )
 
