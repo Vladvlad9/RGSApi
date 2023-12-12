@@ -2,17 +2,6 @@ from sqladmin import ModelView
 from sqladmin import BaseView, expose
 from models import User, Admin, Dialogue
 from fastapi import Request
-from fastapi.templating import Jinja2Templates
-
-
-class ReportView(BaseView):
-    name = "Report Page"
-    icon = "fa-solid fa-chart-line"
-
-    @expose("/report", methods=["GET"])
-    async def report_page(self, request):
-        users_count = 1
-        return await self.templates.TemplateResponse("report.html", {"request": request, "context": {"users_count": users_count}})
 
 
 class UserAdmin(ModelView, model=User):
@@ -90,6 +79,7 @@ class TelegramMessageAdmin(BaseView):
     name_plural = "Рассылка"
 
     @expose("/mailing", methods=["GET"])
-    async def report_page(self, request: Request):
+    async def report_page(self, request):
+        pass
         return await self.templates.TemplateResponse(request, "mailing.html", )
 
