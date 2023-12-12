@@ -49,7 +49,6 @@ async def on_startup():
 
 @app.get("/")
 async def root(request: Request):
-    # return templates.TemplateResponse("main.html", {"request": request})
     return RedirectResponse("/admin")
 
 
