@@ -80,6 +80,6 @@ class TelegramMessageAdmin(BaseView):
 
     @expose("/mailing", methods=["GET"])
     async def report_page(self, request):
-        pass
-        return await self.templates.TemplateResponse(request, "mailing.html", )
+        context = {"request": request}
+        return await self.templates.TemplateResponse("mailing.html", name="mailing.html", context=context)
 
