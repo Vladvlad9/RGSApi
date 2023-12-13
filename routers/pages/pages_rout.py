@@ -33,16 +33,15 @@ async def get_form(request: Request):
 async def send_message(message: str = Form(...)):
     telegram_bot_token = CONFIG.BOT.TOKEN
     getAdmin = await CRUDAdmin.get_all()
-    for admin in getAdmin:
-        url = f"https://api.telegram.org/bot{telegram_bot_token}/sendMessage"
-        payload = {
-            'chat_id': admin.admin_id,
-            'text': message,
-            'parse_mode': 'HTML'
-        }
-        await CRUDTelegramMessage.add(message=TelegramMessageSchema(countMessageAdmin=1))
-        async with httpx.AsyncClient() as client:
-            await client.post(url, data=payload)
-
-    # return RedirectResponse("/admin/mailing")
+    if getAdmin:
+        for admin in getAdmin:
+            url = f"https://api.telegram.org/bot{telegram_bot_token}/sendMessage"
+            payload = {
+                'chat_id': admin.admin_id,
+                'text': message,
+                'parse_mode': 'HTML'
+            }
+            await CRUDTelegramMessage.add(message=TelegramMessageSchema(countMessageAdmin=len(getAdmin)))
+            async with httpx.AsyncClient() as client:
+                await client.post(url, data=payload)
 
