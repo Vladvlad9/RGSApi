@@ -1,0 +1,191 @@
+ {% extends "list.html" %}
+ {% block content %}
+ {{ super() }}
+
+<div class="col-12">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Статистика пользователей</h3>
+            <p>{{ custom_variable }}</p>
+        </div>
+
+        <div class="container overflow-hidden text-center">
+          <div class="row gx-5">
+            <div class="col">
+
+                <div class="containers">
+                    <h1>Активные</h1>
+                    <div class="chart-container">
+                        <canvas id="chartUser1"></canvas>
+                    </div>
+                </div>
+
+            </div>
+            <div class="col">
+
+                <div class="containers">
+                    <h1>Заблокированные</h1>
+                    <div class="chart-container">
+                        <canvas id="chartUser2"></canvas>
+                    </div>
+                </div>
+
+            </div>
+          </div>
+        </div>
+
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+
+    // let ctx_user = document.getElementById('chartUser1').getContext('2d');
+    // let ctx_user1 = document.getElementById('chartUser2').getContext('2d');
+
+    async function updateChartData() {
+    try {
+        const response = await fetch('/admin_view/test');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const stats = await response.json();
+
+        // Создаем новый объект данных для диаграммы
+        const chartData2 = {
+
+            labels: ['Заблокированные', 'Не заблокированные'],
+            datasets: [{
+                data: [stats.getIsBlockUser, stats.getIsBlockUserFalse], // Используем данные из эндпойнта
+                backgroundColor: ['rgba(255, 99, 132, 0.6)', 'rgba(54, 162, 235, 0.6)',], // Цвета для сегментов
+                borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)',], // Цвета границ сегментов
+                borderWidth: 1 // Толщина границы
+            }]
+        };
+
+        const chartData = {
+            labels: ['Активные', 'Неактивные'],
+            datasets: [{
+                data: [stats.inside_count, stats.outside_count], // Используем данные из эндпойнта
+                backgroundColor: ['rgba(255, 99, 132, 0.6)', 'rgba(54, 162, 235, 0.6)',], // Цвета для сегментов
+                borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)',], // Цвета границ сегментов
+                borderWidth: 1 // Толщина границы
+            }]
+        };
+
+        // Получаем контекст для круговой диаграммы
+        let ctx_user = document.getElementById('chartUser1').getContext('2d');
+        let ctx_user2 = document.getElementById('chartUser2').getContext('2d');
+
+        // Создаем новую круговую диаграмму с обновленными данными
+        var myPieChartUser = new Chart(ctx_user, {
+            type: 'pie', // тип диаграммы: круговая
+            data: chartData, // Обновленные данные для диаграммы
+            options: {} // Опции для диаграммы (если нужны)
+        });
+
+        var myPieChartUser2 = new Chart(ctx_user2, {
+            type: 'pie', // тип диаграммы: круговая
+            data: chartData2, // Обновленные данные для диаграммы
+            options: {} // Опции для диаграммы (если нужны)
+        });
+    } catch (error) {
+        console.error('Ошибка при получении данных:', error);
+    }
+}
+
+// Вызываем функцию при загрузке страницы или по событию
+updateChartData();
+
+
+    // var myPieChartUser = new Chart(ctx_user, {
+    //     type: 'pie', // тип диаграммы: круговая
+    //     data: {
+    //         // Данные для диаграммы
+    //         labels: ['Активные', 'Неактивные'],
+    //         datasets: [{
+    //             data: [1, 22], // значения для каждой категории
+    //             backgroundColor: [
+    //                 'rgba(255, 99, 132, 0.6)', // розовый
+    //                 'rgba(54, 162, 235, 0.6)', // синий
+    //             ],
+    //             borderColor: [
+    //                 'rgba(255, 99, 132, 1)', // розовый
+    //                 'rgba(54, 162, 235, 1)', // синий
+    //             ],
+    //             borderWidth: 1 // толщина границы
+    //         }]
+    //     },
+    //     options: {
+    //         // Настройки диаграммы
+    //         responsive: true, // диаграмма будет адаптивной
+    //         title: {
+    //             display: true,
+    //             text: 'Пример круговой диаграммы с отображением значений'
+    //         },
+    //         tooltips: {
+    //             enabled: true, // включаем всплывающие подсказки
+    //             mode: 'index',
+    //             intersect: false,
+    //             callbacks: {
+    //                 label: function(tooltipItem, data) {
+    //                     // Форматируем текст подсказки
+    //                     var label = data.labels[tooltipItem.index] || '';
+    //                     if (label) {
+    //                         label += ': ';
+    //                     }
+    //                     label += data.datasets[0].data[tooltipItem.index];
+    //                     return label;
+    //                 }
+    //             }
+    //         }
+    //     }
+    // });
+    //
+    // var myPieChartUser1 = new Chart(ctx_user1, {
+    //     type: 'pie', // тип диаграммы: круговая
+    //     data: {
+    //         // Данные для диаграммы
+    //         labels: ['Заблокированные', 'Не заблокированные'],
+    //         datasets: [{
+    //             data: [1, 2], // значения для каждой категории
+    //             backgroundColor: [
+    //                 'rgba(255, 99, 132, 0.6)', // розовый
+    //                 'rgba(54, 162, 235, 0.6)', // синий
+    //             ],
+    //             borderColor: [
+    //                 'rgba(255, 99, 132, 1)', // розовый
+    //                 'rgba(54, 162, 235, 1)', // синий
+    //             ],
+    //             borderWidth: 1 // толщина границы
+    //         }]
+    //     },
+    //     options: {
+    //         // Настройки диаграммы
+    //         responsive: true, // диаграмма будет адаптивной
+    //         title: {
+    //             display: true,
+    //             text: 'Пример круговой диаграммы с отображением значений'
+    //         },
+    //         tooltips: {
+    //             enabled: true, // включаем всплывающие подсказки
+    //             mode: 'index',
+    //             intersect: false,
+    //             callbacks: {
+    //                 label: function(tooltipItem, data) {
+    //                     // Форматируем текст подсказки
+    //                     var label = data.labels[tooltipItem.index] || '';
+    //                     if (label) {
+    //                         label += ': ';
+    //                     }
+    //                     label += data.datasets[0].data[tooltipItem.index];
+    //                     return label;
+    //                 }
+    //             }
+    //         }
+    //     }
+    // });
+
+</script>
+{% endblock %}

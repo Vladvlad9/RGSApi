@@ -1,13 +1,14 @@
 from sqladmin import ModelView
 from sqladmin import BaseView, expose
 
+from crud import CRUDUsers
 from crud.TelegramMessageCRUD import CRUDTelegramMessage
 from crud.dialogCRUD import CRUDDialog
-from models import User, Admin, Dialogue
+from models import User, Admin, Dialogue, AdminWebs
 
 
 class UserAdmin(ModelView, model=User):
-    column_list = [User.id, User.user_id, User.phone]
+    column_list = [User.id, User.user_id, User.phone, User.is_block, User.updated_at]
 
     name = "Пользователи"
     name_plural = "Пользователя"
@@ -22,10 +23,19 @@ class UserAdmin(ModelView, model=User):
         User.is_block: "Заблокирован",
     }
 
+    column_sortable_list = [
+        User.id,
+        User.is_block,
+        User.updated_at
+    ]
+
+    column_searchable_list = [
+        User.user_id
+    ]
+
     can_export = False
     can_view_details = True
-
-    # list_template = "list.html"
+    list_template = "user_statistics.html"
     # details_template = "details.html"
     # edit_template = "edit.html"
     # create_template = "create.html"
@@ -35,8 +45,9 @@ class UserAdmin(ModelView, model=User):
 class AdminAdmin(ModelView, model=Admin):
     column_list = [Admin.id, Admin.admin_id]
 
-    name = "Администратора"
-    name_plural = "Администраторы"
+    name = "Саппорт"
+    name_plural = "Саппорты"
+    icon = "fa-solid fa-headset"
 
     # list_template = "list.html"
     # details_template = "details.html"
@@ -47,6 +58,7 @@ class AdminAdmin(ModelView, model=Admin):
         Admin.id: "id",
         Admin.admin_id: "id Телеграм"
     }
+    can_export = False
 
 
 class DialogAdmin(ModelView, model=Dialogue):
@@ -54,6 +66,7 @@ class DialogAdmin(ModelView, model=Dialogue):
                    Dialogue.gradeUser, Dialogue.gradeAdmin]
     name = 'диалог'
     name_plural = "Диалог"
+    icon = "fa-regular fa-comment-dots"
 
     # list_template = "stat.html"
     # details_template = "details.html"
@@ -62,24 +75,51 @@ class DialogAdmin(ModelView, model=Dialogue):
 
     column_labels = {
         Dialogue.id: "id",
-        Dialogue.user_id: "id Пользователя",
-        Dialogue.admin_id: "id Администратора",
+        Dialogue.user_id: "id Продавца",
+        Dialogue.admin_id: "id Саппорта",
         Dialogue.is_active: "Активный",
         Dialogue.created_at: "Создан",
         Dialogue.updated_at: "Обновлен",
         Dialogue.who_closed: "Кто закрыл",
-        Dialogue.gradeUser: "Оценка пользователя",
-        Dialogue.gradeAdmin: "Оценка администратора"
+        Dialogue.gradeUser: "Оценка Продавца",
+        Dialogue.gradeAdmin: "Оценка Саппорта"
     }
     can_create = False
-    # can_edit = False
-    # can_delete = False
+    can_edit = False
+    can_delete = False
+    can_export = False
+
+    column_sortable_list = [
+        Dialogue.id,
+        Dialogue.is_active,
+        Dialogue.updated_at
+    ]
+
+    column_searchable_list = [
+        Dialogue.user_id,
+        Dialogue.admin_id,
+    ]
+
+
+class AdminWeb(ModelView, model=AdminWebs):
+    column_list = [AdminWebs.email, AdminWebs.password]
+
+    name = "Администратор"
+    name_plural = "Администраторы"
+    icon = "fa-solid fa-lock"
+
+    column_labels = {
+        AdminWebs.email: "Логин",
+        AdminWebs.password: "Пароль",
+    }
+    can_export = False
 
 
 class TelegramMessageAdmin(BaseView):
     name = "Рассылка"
     name_plural = "Рассылка"
-
+    icon = "fa-brands fa-telegram"
+    can_export = False
     @expose("/mailing", methods=["GET"])
     async def mailing_page(self, request):
         mailing = await CRUDTelegramMessage.get_all()
@@ -91,7 +131,6 @@ class TelegramMessageAdmin(BaseView):
 class Statistics(BaseView):
     name = "Статистика"
     icon = "fa-solid fa-chart-line"
-
     @expose("/statistics", methods=["GET"])
     async def statistics_page(self, request):
         gradeUser = 0
@@ -114,6 +153,11 @@ class Statistics(BaseView):
             averageGradeUser = 0
             averageGradeAdmin = 0
 
+        getIsBlockUser = len(await CRUDUsers.get_all_is_block(is_block=True))
+        getIsBlockUserFalse = len(await CRUDUsers.get_all_is_block(is_block=False))
+
+        inside_count, outside_count = await CRUDUsers.get_count_today()
+
         return await self.templates.TemplateResponse(request,
                                                      "stat.html",
                                                      context={
@@ -121,7 +165,11 @@ class Statistics(BaseView):
                                                          "openDialogs": openDialogs,
                                                          "closeDialogs": closeDialogs,
                                                          "gradeUser": averageGradeUser,
-                                                         "gradeAdmin": averageGradeAdmin
+                                                         "gradeAdmin": averageGradeAdmin,
+                                                         "getIsBlockUser": getIsBlockUser,
+                                                         "getIsBlockUserFalse": getIsBlockUserFalse,
+                                                         "inside_count": inside_count,
+                                                         "outside_count": outside_count,
                                                      })
 
 

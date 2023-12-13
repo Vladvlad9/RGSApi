@@ -5,7 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.responses import RedirectResponse
 
 from admin.Authentication import authentication_backend
-from admin.views import UserAdmin, AdminAdmin, TelegramMessageAdmin, DialogAdmin, Statistics
+from admin.views import UserAdmin, AdminAdmin, TelegramMessageAdmin, DialogAdmin, Statistics, AdminWeb
 from config import CONFIG
 from models.engine import ASYNC_ENGINE
 from fastapi.templating import Jinja2Templates
@@ -34,6 +34,7 @@ admin.add_view(UserAdmin)
 admin.add_view(AdminAdmin)
 admin.add_view(DialogAdmin)
 admin.add_view(TelegramMessageAdmin)
+admin.add_view(AdminWeb)
 
 app.add_middleware(
     CORSMiddleware,

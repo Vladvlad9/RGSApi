@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Request
 from starlette.responses import JSONResponse
 from datetime import datetime, timedelta
+from fastapi.templating import Jinja2Templates
 
+from crud import CRUDUsers
 from crud.dialogCRUD import CRUDDialog
-
+templates = Jinja2Templates(directory="templates")
 router = APIRouter(
     prefix='/admin_view',
     tags=['Admin View']
@@ -26,12 +28,19 @@ async def statistic_today(request: Request):
         gradeUser += getGrade.gradeUser
         gradeAdmin += getGrade.gradeAdmin
 
+    try:
+        averageGradeUser = gradeUser / allDialogsLen
+        averageGradeAdmin = gradeAdmin / allDialogsLen
+    except ZeroDivisionError:
+        averageGradeUser = 0
+        averageGradeAdmin = 0
+
     context = {
         "allDialogs": allDialogsLen,
         "openDialogs": openDialogs,
         "closeDialogs": closeDialogs,
-        "gradeUser": gradeUser / allDialogsLen,
-        "gradeAdmin": gradeAdmin / allDialogsLen
+        "gradeUser": averageGradeUser,
+        "gradeAdmin": averageGradeAdmin
     }
 
     return JSONResponse(content=context)
@@ -94,4 +103,19 @@ async def statistic_month(request: Request):
         "gradeAdmin": gradeAdmin / allDialogsLen
     }
 
+    return JSONResponse(content=context)
+
+
+@router.get("/test")
+async def statistic_week(request: Request):
+    getIsBlockUser = len(await CRUDUsers.get_all_is_block(is_block=True))
+    getIsBlockUserFalse = len(await CRUDUsers.get_all_is_block(is_block=False))
+
+    inside_count, outside_count = await CRUDUsers.get_count_today()
+    context = {
+        "getIsBlockUser": getIsBlockUser,
+        "getIsBlockUserFalse": getIsBlockUserFalse,
+        "inside_count": inside_count,
+        "outside_count": outside_count,
+    }
     return JSONResponse(content=context)
