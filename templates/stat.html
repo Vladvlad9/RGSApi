@@ -85,62 +85,73 @@
 </div>
 
 
-<!--<div class="col-12">-->
-<!--    <div class="card">-->
-<!--        <div class="card-header">-->
-<!--            <h3 class="card-title">Пользователи</h3>-->
-<!--        </div>-->
-
-<!--        <div class="container overflow-hidden text-center">-->
-<!--          <div class="row gx-5">-->
-<!--            <div class="col">-->
-
-<!--                <div class="containers">-->
-<!--                    <h1>Активные</h1>-->
-<!--                    <div class="chart-container">-->
-<!--                        <canvas id="chartUser1"></canvas>-->
-<!--                    </div>-->
-<!--                </div>-->
-
-<!--            </div>-->
-<!--            <div class="col">-->
-
-<!--                <div class="containers">-->
-<!--                    <h1>Заблокированные</h1>-->
-<!--                    <div class="chart-container">-->
-<!--                        <canvas id="chartUser2"></canvas>-->
-<!--                    </div>-->
-<!--                </div>-->
-
-<!--            </div>-->
-<!--          </div>-->
-<!--        </div>-->
-
-<!--    </div>-->
-<!--</div>-->
-
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<script>
-    var allDialogs1 = Number("{{ allDialogs | tojson }}");
-    var openDialogs1 = Number("{{ openDialogs | tojson }}");
-    var closeDialogs1 = Number("{{ closeDialogs | tojson }}");
-    var gradeUser1 = Number("{{ gradeUser | tojson }}");
-    var gradeAdmin1 = Number("{{ gradeAdmin | tojson }}");
 
-    // var getIsBlockUser = Number("{{ getIsBlockUser | tojson }}");
-    // var getIsBlockUserFalse = Number("{{ getIsBlockUserFalse | tojson }}");
-    //
-    // var inside_count = Number("{{ inside_count | tojson }}");
-    // var outside_count = Number("{{ outside_count | tojson }}");
+
+<script>
+
+    function updateData(url) {
+      fetch(url)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Сетевой ответ не окей');
+          }
+          return response.json();
+        })
+        .then(data => {
+          // Обновление данных в элементах таблицы
+          document.getElementById("allDialogs").textContent = data.allDialogs;
+          document.getElementById("openDialogs").textContent = data.openDialogs;
+          document.getElementById("closeDialogs").textContent = data.closeDialogs;
+          document.getElementById("gradeUser").textContent = data.gradeUser;
+          document.getElementById("gradeAdmin").textContent = data.gradeAdmin;
+
+          openDialogs = Number(data.openDialogs);
+          closeDialogs = Number(data.closeDialogs);
+
+          gradeUser = Number(data.gradeUser);
+          gradeAdmin = Number(data.gradeAdmin);
+
+          // Обновление данных диаграммы
+          myPieChart.data.datasets[0].data = [openDialogs, closeDialogs];
+          myPieChart1.data.datasets[0].data = [gradeUser, gradeAdmin];
+          myPieChart.update(); // Обновление диаграммы
+          myPieChart1.update(); // Обновление диаграммы
+        })
+        .catch(error => console.error('Ошибка:', error));
+    }
+
+    // Пример использования функции для кнопки "Сегодня"
+    document.getElementById('btnradio1').addEventListener('click', function() {
+      updateData('/admin_view/today/');
+    });
+
+    // Пример использования функции для кнопки "Неделя"
+    document.getElementById('btnradio2').addEventListener('click', function() {
+      updateData('/admin_view/week/');
+    });
+
+    document.getElementById('btnradio3').addEventListener('click', function() {
+      updateData('/admin_view/month/');
+    });
+
+
+
+
+</script>
+
+<script>
+    let allDialogs1 = Number("{{ allDialogs | tojson }}");
+    let openDialogs1 = Number("{{ openDialogs | tojson }}");
+    let closeDialogs1 = Number("{{ closeDialogs | tojson }}");
+    let gradeUser1 = Number("{{ gradeUser | tojson }}");
+    let gradeAdmin1 = Number("{{ gradeAdmin | tojson }}");
 
     console.log(openDialogs1, closeDialogs1)
 
     let ctx = document.getElementById('chart1').getContext('2d');
     let ctx2 = document.getElementById('chart2').getContext('2d');
-    // let ctxUser = document.getElementById('chartUser1').getContext('2d');
-    // let ctxUser2 = document.getElementById('chartUser2').getContext('2d');
 
 
     var myPieChart = new Chart(ctx, {
@@ -230,146 +241,6 @@
             }
         }
     });
-
-    // var myPieChartUser = new Chart(ctxUser, {
-    //     type: 'pie', // тип диаграммы: круговая
-    //     data: {
-    //         // Данные для диаграммы
-    //         labels: ['Неактивные', 'Активные'],
-    //         datasets: [{
-    //             data: [outside_count, inside_count], // значения для каждой категории
-    //             backgroundColor: [
-    //                 'rgba(255, 99, 132, 0.6)', // розовый
-    //                 'rgba(54, 162, 235, 0.6)', // синий
-    //             ],
-    //             borderColor: [
-    //                 'rgba(255, 99, 132, 1)', // розовый
-    //                 'rgba(54, 162, 235, 1)', // синий
-    //             ],
-    //             borderWidth: 1 // толщина границы
-    //         }]
-    //     },
-    //     options: {
-    //         // Настройки диаграммы
-    //         responsive: true, // диаграмма будет адаптивной
-    //         title: {
-    //             display: true,
-    //             text: 'Пример круговой диаграммы с отображением значений'
-    //         },
-    //         tooltips: {
-    //             enabled: true, // включаем всплывающие подсказки
-    //             mode: 'index',
-    //             intersect: false,
-    //             callbacks: {
-    //                 label: function(tooltipItem, data) {
-    //                     // Форматируем текст подсказки
-    //                     var label = data.labels[tooltipItem.index] || '';
-    //                     if (label) {
-    //                         label += ': ';
-    //                     }
-    //                     label += data.datasets[0].data[tooltipItem.index];
-    //                     return label;
-    //                 }
-    //             }
-    //         }
-    //     }
-    // });
-    //
-    // var myPieChartUser2 = new Chart(ctxUser2, {
-    //     type: 'pie', // тип диаграммы: круговая
-    //     data: {
-    //         // Данные для диаграммы
-    //         labels: ['Заблокированные', 'Не заблокированные'],
-    //         datasets: [{
-    //             data: [getIsBlockUser, getIsBlockUserFalse], // значения для каждой категории
-    //             backgroundColor: [
-    //                 'rgba(255, 99, 132, 0.6)', // розовый
-    //                 'rgba(54, 162, 235, 0.6)', // синий
-    //             ],
-    //             borderColor: [
-    //                 'rgba(255, 99, 132, 1)', // розовый
-    //                 'rgba(54, 162, 235, 1)', // синий
-    //             ],
-    //             borderWidth: 1 // толщина границы
-    //         }]
-    //     },
-    //     options: {
-    //         // Настройки диаграммы
-    //         responsive: true, // диаграмма будет адаптивной
-    //         title: {
-    //             display: true,
-    //             text: 'Пример круговой диаграммы с отображением значений'
-    //         },
-    //         tooltips: {
-    //             enabled: true, // включаем всплывающие подсказки
-    //             mode: 'index',
-    //             intersect: false,
-    //             callbacks: {
-    //                 label: function(tooltipItem, data) {
-    //                     // Форматируем текст подсказки
-    //                     var label = data.labels[tooltipItem.index] || '';
-    //                     if (label) {
-    //                         label += ': ';
-    //                     }
-    //                     label += data.datasets[0].data[tooltipItem.index];
-    //                     return label;
-    //                 }
-    //             }
-    //         }
-    //     }
-    // });
-
-</script>
-
-<script>
-
-    function updateData(url) {
-      fetch(url)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Сетевой ответ не окей');
-          }
-          return response.json();
-        })
-        .then(data => {
-          // Обновление данных в элементах таблицы
-          document.getElementById("allDialogs").textContent = data.allDialogs;
-          document.getElementById("openDialogs").textContent = data.openDialogs;
-          document.getElementById("closeDialogs").textContent = data.closeDialogs;
-          document.getElementById("gradeUser").textContent = data.gradeUser;
-          document.getElementById("gradeAdmin").textContent = data.gradeAdmin;
-
-          openDialogs = Number(data.openDialogs);
-          closeDialogs = Number(data.closeDialogs);
-
-          gradeUser = Number(data.gradeUser);
-          gradeAdmin = Number(data.gradeAdmin);
-
-          // Обновление данных диаграммы
-          myPieChart.data.datasets[0].data = [openDialogs, closeDialogs];
-          myPieChart1.data.datasets[0].data = [gradeUser, gradeAdmin];
-          myPieChart.update(); // Обновление диаграммы
-          myPieChart1.update(); // Обновление диаграммы
-        })
-        .catch(error => console.error('Ошибка:', error));
-    }
-
-    // Пример использования функции для кнопки "Сегодня"
-    document.getElementById('btnradio1').addEventListener('click', function() {
-      updateData('/admin_view/today/');
-    });
-
-    // Пример использования функции для кнопки "Неделя"
-    document.getElementById('btnradio2').addEventListener('click', function() {
-      updateData('/admin_view/week/');
-    });
-
-    document.getElementById('btnradio3').addEventListener('click', function() {
-      updateData('/admin_view/month/');
-    });
-
-
-
 
 </script>
 
