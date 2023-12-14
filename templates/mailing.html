@@ -35,6 +35,7 @@
         margin-top: 10px; /* Добавлено для отступа сверху */
     }
 </style>
+
 <div class="col-12">
     <div class="card">
         <div class="card-header">
@@ -45,27 +46,39 @@
                 <textarea id="message" rows="5" name="message" class="textarea" placeholder="Введите сообщение"></textarea>
                 <p class="result"></p>
             </div>
-            <div class="form-group" style="padding: 10px">
+            <div class="form-group p-3">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="showInput" onclick="showHideInput()">
+                    <label class="form-check-label" for="showInput">
+                        Показать дополнительное поле для ввода
+                    </label>
+                </div>
+                <input type="text"
+                       id="extraInput"
+                       class="form-control mt-2"
+                       style="display: none;"
+                       placeholder="Введите ссылку">
+            </div>
+            <div class="form-group p-3">
                 <input type="submit" class="bnt" value="Отправить">
             </div>
         </form>
     </div>
 </div>
     <!-- Обновленное модальное окно -->
-    <div id="myModal" class="modal">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">Уведомление</h4>
-                    <button type="button" class="close" data-dismiss="modal">×</button>
-                </div>
-                <div class="modal-body">
-                    <p>Сообщение успешно отправлено!</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
-                </div>
+    <div class="modal fade" id="beautifulModal" tabindex="-1" aria-labelledby="beautifulModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="beautifulModalLabel">Уведомление</h5>
+<!--                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>-->
             </div>
+            <div class="modal-body bg-light text-dark">
+                <p id="modalMessage">Сообщение успешно отправлено!</p>
+            </div>
+<!--            <div class="modal-footer bg-secondary">-->
+<!--                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Закрыть</button>-->
+<!--            </div>-->
         </div>
     </div>
 </div>
@@ -95,6 +108,7 @@
 
 <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
 <script>
+
     function validateArea(){
         const textarea = document.querySelector(".textarea")
         const result = document.querySelector(".result")
@@ -123,52 +137,69 @@
 
     }
     validateArea()
+
+    function showHideInput() {
+        let checkBox = document.getElementById("showInput");
+        let text = document.getElementById("extraInput");
+        if (checkBox.checked === true){
+            text.style.display = "block";
+        } else {
+            text.style.display = "none";
+            text.value = ""
+        }
+    }
+
 </script>
 <script>
         // Получите модальное окно
-        let modal = document.getElementById('myModal');
-        // Получите элемент <span>, который закрывает модальное окно
-        let span = document.getElementsByClassName("close")[0];
-        // Получите форму
-        let form = document.getElementById('messageForm');
+        let modal = document.getElementById('beautifulModal');
+        // Получите элемент <button>, который закрывает модальное окно
+        let btnClose = document.querySelector('.btn-close');
 
-        // Функция для отображения модального окна
-        function showModal() {
-            modal.style.display = "block";
+        let form = document.getElementById('messageForm');
+        let extraInput = document.getElementById('extraInput');
+        let modalMessage = document.getElementById('modalMessage');
+
+        // Функция для отображения модального окна с заданным сообщением
+        function showModal(message) {
+            modalMessage.textContent = message;
+            let myModal = new bootstrap.Modal(document.getElementById('beautifulModal'));
+            myModal.show();
         }
-        function toggleMenu() {
-          let menu = document.querySelector('.nav-links');
-          let icon = document.querySelector('.burger-icon');
-          menu.classList.toggle('active');
-          icon.classList.toggle('active');
+
+        // Функция для проверки валидности URL
+        function isValidURL(string) {
+            let res = string.match(/(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/);
+            return (res !== null)
         }
 
         // Обработчик отправки формы
         form.onsubmit = function(event) {
             event.preventDefault(); // Предотвратить стандартное поведение формы
-            let formData = new FormData(form);
-            fetch('/pages/send_message/', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                showModal(); // Показать модальное окно
-                console.log(data); // Вывести ответ сервера в консоль
-            })
-            .catch(error => console.error('Ошибка:', error));
-        };
-
-        // Закрыть модальное окно при нажатии на <span> (x)
-        span.onclick = function() {
-            modal.style.display = "none";
-        };
-
-        // Закрыть модальное окно при нажатии вне его
-        window.onclick = function(event) {
-            if (event.target === modal) {
-                modal.style.display = "none";
+            let extraInput = document.getElementById('extraInput').value;
+            if (extraInput && !isValidURL(extraInput)) {
+                showModal('Ошибка: недействительный URL');
+                console.error('Ошибка: недействительный URL');
+            } else {
+                let formData = new FormData(form);
+                formData.append('extraInput', extraInput);
+                fetch('/pages/send_message/', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data); // Вывести ответ сервера в консоль
+                    showModal('Сообщение успешно отправлено!');
+                })
+                .catch(error => console.error('Ошибка:', error));
             }
+        };
+
+        // Закрыть модальное окно при нажатии на <button> (x)
+        btnClose.onclick = function() {
+            let myModal = bootstrap.Modal.getInstance(modal);
+            myModal.hide();
         };
     </script>
 

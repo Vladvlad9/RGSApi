@@ -85,8 +85,8 @@ class DialogAdmin(ModelView, model=Dialogue):
         Dialogue.gradeAdmin: "Оценка Саппорта"
     }
     can_create = False
-    can_edit = False
-    can_delete = False
+    # can_edit = False
+    # can_delete = False
     can_export = False
 
     column_sortable_list = [

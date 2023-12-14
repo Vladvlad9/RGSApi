@@ -1,3 +1,5 @@
+import json
+
 from fastapi import APIRouter, Request, Form
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
@@ -5,6 +7,7 @@ import httpx
 from starlette.responses import RedirectResponse, JSONResponse
 
 from config import CONFIG
+from crud import CRUDUsers
 from crud.AdminCRUD import CRUDAdmin
 from crud.TelegramMessageCRUD import CRUDTelegramMessage
 from models import User
@@ -30,18 +33,24 @@ async def get_form(request: Request):
 
 
 @router.post("/send_message/")
-async def send_message(message: str = Form(...)):
+async def send_message(message: str = Form(...), extraInput: str = Form(None)):
     telegram_bot_token = CONFIG.BOT.TOKEN
-    getAdmin = await CRUDAdmin.get_all()
-    if getAdmin:
-        for admin in getAdmin:
+    getUsers = await CRUDUsers.get_all()
+    if getUsers:
+        for user in getUsers:
             url = f"https://api.telegram.org/bot{telegram_bot_token}/sendMessage"
             payload = {
-                'chat_id': admin.admin_id,
+                'chat_id': user.user_id,
                 'text': message,
                 'parse_mode': 'HTML'
             }
-            await CRUDTelegramMessage.add(message=TelegramMessageSchema(countMessageAdmin=len(getAdmin)))
+            if extraInput:
+                payload['reply_markup'] = json.dumps({
+                    'inline_keyboard': [
+                        [{'text': 'Перейти', 'url': extraInput}]
+                    ]
+                })
             async with httpx.AsyncClient() as client:
                 await client.post(url, data=payload)
+        await CRUDTelegramMessage.add(message=TelegramMessageSchema(countMessageAdmin=len(getUsers)))
 
