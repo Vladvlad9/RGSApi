@@ -29,8 +29,8 @@ async def statistic_today(request: Request):
         gradeAdmin += getGrade.gradeAdmin
 
     try:
-        averageGradeUser = gradeUser / allDialogsLen
-        averageGradeAdmin = gradeAdmin / allDialogsLen
+        averageGradeUser = round(gradeUser / allDialogsLen, 1)
+        averageGradeAdmin = round(gradeAdmin / allDialogsLen, 1)
     except ZeroDivisionError:
         averageGradeUser = 0
         averageGradeAdmin = 0
@@ -60,17 +60,22 @@ async def statistic_week(request: Request):
     allDialogsLen = len(await CRUDDialog.get_all_wk())
     openDialogs = len(await CRUDDialog.get_all_week(is_active=True))
     closeDialogs = len(await CRUDDialog.get_all_week(is_active=False))
-
     for getGrade in allDialogs:
         gradeUser += getGrade.gradeUser
         gradeAdmin += getGrade.gradeAdmin
+    try:
+        averageGradeUser = round(gradeUser / allDialogsLen, 1)
+        averageGradeAdmin = round(gradeAdmin / allDialogsLen, 1)
+    except ZeroDivisionError:
+        averageGradeUser = 0
+        averageGradeAdmin = 0
 
     context = {
         "allDialogs": allDialogsLen,
         "openDialogs": openDialogs,
         "closeDialogs": closeDialogs,
-        "gradeUser": gradeUser / allDialogsLen,
-        "gradeAdmin": gradeAdmin / allDialogsLen
+        "gradeUser": averageGradeUser,
+        "gradeAdmin": averageGradeAdmin
     }
 
     return JSONResponse(content=context)
@@ -90,17 +95,22 @@ async def statistic_month(request: Request):
     allDialogsLen = len(await CRUDDialog.get_all_mn())
     openDialogs = len(await CRUDDialog.get_all_month(is_active=True))
     closeDialogs = len(await CRUDDialog.get_all_month(is_active=False))
-
     for getGrade in allDialogs:
         gradeUser += getGrade.gradeUser
         gradeAdmin += getGrade.gradeAdmin
+    try:
+        averageGradeUser = round(gradeUser / allDialogsLen, 1)
+        averageGradeAdmin = round(gradeAdmin / allDialogsLen, 1)
+    except ZeroDivisionError:
+        averageGradeUser = 0
+        averageGradeAdmin = 0
 
     context = {
         "allDialogs": allDialogsLen,
         "openDialogs": openDialogs,
         "closeDialogs": closeDialogs,
-        "gradeUser": gradeUser / allDialogsLen,
-        "gradeAdmin": gradeAdmin / allDialogsLen
+        "gradeUser": averageGradeUser,
+        "gradeAdmin": averageGradeAdmin
     }
 
     return JSONResponse(content=context)
