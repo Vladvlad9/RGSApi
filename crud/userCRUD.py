@@ -72,3 +72,11 @@ class CRUDUsers(BaseDAO):
         outside_count = count_outside.scalar()
 
         return inside_count, outside_count
+
+    @classmethod
+    @create_async_session
+    async def get_all_only_id(cls, session: AsyncSession = None) -> list:
+        getAll = await session.execute(
+            select(cls.model.user_id)
+        )
+        return [get_All[0] for get_All in getAll]
