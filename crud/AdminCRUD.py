@@ -10,4 +10,12 @@ class CRUDAdmin(BaseDAO):
     model = Admin
     inDBSchemas = AdminInDBSchema
 
+    @classmethod
+    @create_async_session
+    async def get_all_only_id(cls, session: AsyncSession = None) -> list:
+        getAll = await session.execute(
+            select(cls.model.admin_id)
+        )
+        return [get_All[0] for get_All in getAll]
+
 
