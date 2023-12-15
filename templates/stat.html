@@ -16,8 +16,14 @@
 
 <div class="col-12">
     <div class="card">
-        <div class="card-header">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
             <h3 class="card-title">Диалоги</h3>
+            <div class="card-tools">
+                <a href="ссылка_для_скачивания"  class="btn btn-tool" title="Скачать">
+                    <i class="fas fa-download"></i>
+                </a>
+            </div>
+            <div style="clear: both;"></div>
         </div>
 
 
@@ -32,27 +38,28 @@
           <label class="btn btn-outline-primary" for="btnradio3">Месяц</label>
         </div>
 
-        <table class="table" style="margin-top: 50px">
-        <thead>
-            <tr>
-                <th scope="col">Всего диалогов</th>
-                <th scope="col">Открыто диалогов</th>
-                <th scope="col">Закрыто</th>
-                <th scope="col">Средняя оценка Продавца</th>
-                <th scope="col">Средняя оценка Саппорта</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td id="allDialogs">{{ allDialogs }}</td>
-                <td id="openDialogs">{{ openDialogs }}</td>
-                <td id="closeDialogs">{{ closeDialogs }}</td>
-                <td id="gradeUser">{{ gradeUser }}</td>
-                <td id="gradeAdmin">{{ gradeAdmin }}</td>
-            </tr>
-        </tbody>
-    </table>
-
+        <div style="display: flex; justify-content: space-between;">
+            <table class="table" style="margin-top: 50px">
+                <thead>
+                    <tr>
+                        <th scope="col">Всего диалогов</th>
+                        <th scope="col">Открыто диалогов</th>
+                        <th scope="col">Закрыто</th>
+                        <th scope="col">Средняя оценка Продавца</th>
+                        <th scope="col">Средняя оценка Саппорта</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td id="allDialogs">{{ allDialogs }}</td>
+                        <td id="openDialogs">{{ openDialogs }}</td>
+                        <td id="closeDialogs">{{ closeDialogs }}</td>
+                        <td id="gradeUser">{{ gradeUser }}</td>
+                        <td id="gradeAdmin">{{ gradeAdmin }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
 
         <div class="container overflow-hidden text-center">
           <div class="row gx-5">
@@ -84,7 +91,7 @@
 
 </div>
 
-
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 
@@ -241,6 +248,15 @@
             }
         }
     });
+
+    $(document).ready(function(){
+    $('.btn').click(function(e){
+        e.preventDefault();
+        $.get('/admin_view/download', function(response){
+            // обработка ответа
+        });
+    });
+});
 
 </script>
 

@@ -5,6 +5,9 @@ from fastapi.templating import Jinja2Templates
 
 from crud import CRUDUsers
 from crud.dialogCRUD import CRUDDialog
+import pandas as pd
+
+
 templates = Jinja2Templates(directory="templates")
 router = APIRouter(
     prefix='/admin_view',
@@ -129,3 +132,13 @@ async def statistic_week(request: Request):
         "outside_count": outside_count,
     }
     return JSONResponse(content=context)
+
+
+@router.get("/download")
+async def download(request: Request):
+    user = []
+    user.append(1)
+    df = pd.DataFrame({
+        'user_id': user,
+    })
+    df.to_excel('Sale.xlsx')
