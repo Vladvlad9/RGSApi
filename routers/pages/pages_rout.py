@@ -33,14 +33,25 @@ async def get_form(request: Request):
 
 
 @router.post("/send_message/")
-async def send_message(message: str = Form(...), extraInput: str = Form(None)):
+async def send_message(message: str = Form(...), extraInput: str = Form(None), selectedOption: str = Form(None)):
+    getUser = await CRUDUsers.get_all_only_id()
+    getAdmin = await CRUDAdmin.get_all_only_id()
+
+    if selectedOption == "vendor":
+        getUsersSet = set(getUser)
+        getAdminSet = set(getAdmin)
+        uniqueInUsers = getUsersSet - getAdminSet
+        getUsers = list(uniqueInUsers)
+    else:
+        getUsers = getAdmin
+
     telegram_bot_token = CONFIG.BOT.TOKEN
-    getUsers = await CRUDUsers.get_all()
+
     if getUsers:
         for user in getUsers:
             url = f"https://api.telegram.org/bot{telegram_bot_token}/sendMessage"
             payload = {
-                'chat_id': user.user_id,
+                'chat_id': user,
                 'text': message,
                 'parse_mode': 'HTML'
             }

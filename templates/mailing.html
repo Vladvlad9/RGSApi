@@ -53,11 +53,28 @@
                         Показать дополнительное поле для ввода
                     </label>
                 </div>
+
                 <input type="text"
                        id="extraInput"
                        class="form-control mt-2"
                        style="display: none;"
                        placeholder="Введите ссылку">
+
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="options" id="vendor" checked>
+                    <label class="form-check-label" for="vendor">
+                        Отправить продавцам
+                    </label>
+                </div>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="options" id="support">
+                    <label class="form-check-label" for="support">
+                        Отправить саппортам
+                    </label>
+                </div>
+
+
             </div>
             <div class="form-group p-3">
                 <input type="submit" class="bnt" value="Отправить">
@@ -181,8 +198,11 @@
                 showModal('Ошибка: недействительный URL');
                 console.error('Ошибка: недействительный URL');
             } else {
+                let selectedOption = document.querySelector('input[name="options"]:checked').id;
+                console.log(selectedOption); // Вывести выбранный вариант в консоль
                 let formData = new FormData(form);
                 formData.append('extraInput', extraInput);
+                formData.append('selectedOption', selectedOption);
                 fetch('/pages/send_message/', {
                     method: 'POST',
                     body: formData
