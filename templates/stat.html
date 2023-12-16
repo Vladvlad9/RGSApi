@@ -19,7 +19,7 @@
         <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
             <h3 class="card-title">Диалоги</h3>
             <div class="card-tools">
-                <a href="ссылка_для_скачивания"  class="btn btn-tool" title="Скачать">
+                <a id="download" class="btn btn-tool" title="Скачать">
                     <i class="fas fa-download"></i>
                 </a>
             </div>
@@ -97,7 +97,8 @@
 
 
 <script>
-
+    let getAllDialogs = 0
+    let getNames = ""
     function updateData(url) {
       fetch(url)
         .then(response => {
@@ -114,6 +115,8 @@
           document.getElementById("gradeUser").textContent = data.gradeUser;
           document.getElementById("gradeAdmin").textContent = data.gradeAdmin;
 
+          getAllDialogs = data.allDialogs;
+          getNames = data.nameDays
           openDialogs = Number(data.openDialogs);
           closeDialogs = Number(data.closeDialogs);
 
@@ -143,7 +146,28 @@
       updateData('/admin_view/month/');
     });
 
+    $(document).ready(function(){
+    $('#download').click(function(e){
+        e.preventDefault();
+        let name = ""
+        if (getNames === "today")
+            name = "Сегодня"
+        else if (getNames === "week")
+            name = "Неделя"
+        else
+            name = "Месяц"
 
+        let data = {
+            "getAllDialogs": getAllDialogs,
+            "openDialogs": openDialogs,
+            "closeDialogs": closeDialogs,
+            "gradeUser": gradeUser,
+            "gradeAdmin": gradeAdmin,
+        }
+        let dataStr = encodeURIComponent(JSON.stringify(data));
+        window.location.href = `/admin_view/download/${name}/${dataStr}`;
+    });
+});
 
 
 </script>
@@ -249,14 +273,7 @@
         }
     });
 
-    $(document).ready(function(){
-    $('.btn').click(function(e){
-        e.preventDefault();
-        $.get('/admin_view/download', function(response){
-            // обработка ответа
-        });
-    });
-});
+
 
 </script>
 

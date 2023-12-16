@@ -1,12 +1,15 @@
-from fastapi import APIRouter, Request
+import json
+
+from fastapi import APIRouter, Request, HTTPException
 from starlette.responses import JSONResponse
 from datetime import datetime, timedelta
 from fastapi.templating import Jinja2Templates
-
+from fastapi.responses import FileResponse
 from crud import CRUDUsers
 from crud.dialogCRUD import CRUDDialog
 import pandas as pd
-
+import os
+from urllib.parse import unquote
 
 templates = Jinja2Templates(directory="templates")
 router = APIRouter(
@@ -43,7 +46,8 @@ async def statistic_today(request: Request):
         "openDialogs": openDialogs,
         "closeDialogs": closeDialogs,
         "gradeUser": averageGradeUser,
-        "gradeAdmin": averageGradeAdmin
+        "gradeAdmin": averageGradeAdmin,
+        "nameDays": "today"
     }
 
     return JSONResponse(content=context)
@@ -78,7 +82,8 @@ async def statistic_week(request: Request):
         "openDialogs": openDialogs,
         "closeDialogs": closeDialogs,
         "gradeUser": averageGradeUser,
-        "gradeAdmin": averageGradeAdmin
+        "gradeAdmin": averageGradeAdmin,
+        "nameDays": "week"
     }
 
     return JSONResponse(content=context)
@@ -113,7 +118,8 @@ async def statistic_month(request: Request):
         "openDialogs": openDialogs,
         "closeDialogs": closeDialogs,
         "gradeUser": averageGradeUser,
-        "gradeAdmin": averageGradeAdmin
+        "gradeAdmin": averageGradeAdmin,
+        "nameDays": "month"
     }
 
     return JSONResponse(content=context)
@@ -134,11 +140,28 @@ async def statistic_week(request: Request):
     return JSONResponse(content=context)
 
 
-@router.get("/download")
-async def download(request: Request):
-    user = []
-    user.append(1)
+@router.get("/download/{name}/{data}")
+async def download(name: str, data: str):
+    data = json.loads(unquote(data))
+    getAllDialogs = [data["getAllDialogs"]]
+    openDialogs = [data["openDialogs"]]
+    closeDialogs = [data["closeDialogs"]]
+    gradeUser = [data["gradeUser"]]
+    gradeAdmin = [data["gradeAdmin"]]
+    getName = [name]
     df = pd.DataFrame({
-        'user_id': user,
+        'Когда': getName,
+        'Всего диалогов': getAllDialogs,
+        'Открыто диалогов': openDialogs,
+        'Закрыто': closeDialogs,
+        'Средняя оценка Продавца': gradeUser,
+        'Средняя оценка Саппорта': gradeAdmin,
     })
-    df.to_excel('Sale.xlsx')
+    df.to_excel('Statistics.xlsx')
+
+    file_path = "Statistics.xlsx"
+    if os.path.exists(file_path):
+        return FileResponse(file_path, media_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                            filename="Statistics.xlsx")
+    else:
+        raise HTTPException(status_code=404, detail="File not found")
