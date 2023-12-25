@@ -63,7 +63,7 @@ class AdminAdmin(ModelView, model=Admin):
 
 class DialogAdmin(ModelView, model=Dialogue):
     column_list = [Dialogue.id, Dialogue.user_id, Dialogue.admin_id, Dialogue.is_active, Dialogue.who_closed,
-                   Dialogue.gradeUser, Dialogue.gradeAdmin]
+                   Dialogue.gradeUser, Dialogue.gradeAdmin, Dialogue.chat_name]
     name = 'диалог'
     name_plural = "Диалог"
     icon = "fa-regular fa-comment-dots"
