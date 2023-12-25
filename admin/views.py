@@ -82,7 +82,8 @@ class DialogAdmin(ModelView, model=Dialogue):
         Dialogue.updated_at: "Обновлен",
         Dialogue.who_closed: "Кто закрыл",
         Dialogue.gradeUser: "Оценка Продавца",
-        Dialogue.gradeAdmin: "Оценка Саппорта"
+        Dialogue.gradeAdmin: "Оценка Саппорта",
+        Dialogue.chat_name: "Название чата",
     }
     can_create = False
     # can_edit = False
