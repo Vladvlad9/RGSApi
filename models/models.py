@@ -46,12 +46,13 @@ class Dialogue(Base):
     user_id = Column(BigInteger, index=True)
     admin_id = Column(BigInteger, index=True)
     is_active = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=datetime.utcnow, comment="Creation timestamp")
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow,
+    created_at = Column(DateTime, default=datetime.now, comment="Creation timestamp")
+    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now,
                         comment="Last update timestamp")
     who_closed = Column(String, default="None")
     gradeUser = Column(Integer)
     gradeAdmin = Column(Integer)
+    chat_name = Column(String)
 
 
 class TelegramMessage(Base):

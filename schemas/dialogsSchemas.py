@@ -12,6 +12,7 @@ class DialogSchemas(BaseModel):
     who_closed: str = Field(default="None")
     gradeUser: int = Field(ge=1)
     gradeAdmin: int = Field(ge=1)
+    chat_name: str = Field(default=None)
 
 
 class DialogInDBSchema(DialogSchemas):
