@@ -4,14 +4,15 @@ from sqladmin import BaseView, expose
 from crud import CRUDUsers
 from crud.TelegramMessageCRUD import CRUDTelegramMessage
 from crud.dialogCRUD import CRUDDialog
-from models import User, Admin, Dialogue, AdminWebs
+from models import User, Admin, Dialogue, AdminWeb, Groups, SalesChannel
 
 
 class UserAdmin(ModelView, model=User):
-    column_list = [User.id, User.user_id, User.phone, User.is_block, User.updated_at]
+    column_list = [User.id, User.last_name, User.first_name, User.middle_name,
+                   User.user_id, User.phone, User.is_block, User.updated_at]
 
-    name = "Пользователи"
-    name_plural = "Пользователя"
+    name = "Продавца"
+    name_plural = "Продавцы"
     icon = "fa-solid fa-user"
 
     column_labels = {
@@ -21,21 +22,44 @@ class UserAdmin(ModelView, model=User):
         User.created_at: "Зарегистрировался в боте",
         User.updated_at: "Был в боте",
         User.is_block: "Заблокирован",
+        User.last_name: "Фамилия",
+        User.first_name: "Имя",
+        User.middle_name: "Отчество",
+        User.lnr: "№ ЛНР",
+        User.sales_channel_id: "Канал продаж",
+        User.sales_channel: "Канал продаж",
     }
 
     column_sortable_list = [
         User.id,
         User.is_block,
-        User.updated_at
+        User.updated_at,
+        User.last_name,
+        User.first_name,
+        User.middle_name,
+        User.lnr,
+        User.sales_channel,
     ]
 
     column_searchable_list = [
-        User.user_id
+        User.user_id,
+        User.user_id,
+        User.phone,
+        User.created_at,
+        User.updated_at,
+        User.is_block,
+        User.last_name,
+        User.first_name,
+        User.middle_name,
+        User.lnr,
+        User.sales_channel,
     ]
 
     can_export = False
     can_view_details = True
     list_template = "user_statistics.html"
+
+    column_details_exclude_list = [User.sales_channel_id]
     # details_template = "details.html"
     # edit_template = "edit.html"
     # create_template = "create.html"
@@ -43,10 +67,10 @@ class UserAdmin(ModelView, model=User):
 
 
 class AdminAdmin(ModelView, model=Admin):
-    column_list = [Admin.id, Admin.admin_id]
+    column_list = [Admin.id, Admin.admin_id, Admin.last_name, Admin.first_name, Admin.middle_name, Admin.groups]
 
-    name = "Саппорт"
-    name_plural = "Саппорты"
+    name = "Андеррайтер"
+    name_plural = "Андеррайтеры"
     icon = "fa-solid fa-headset"
 
     # list_template = "list.html"
@@ -56,15 +80,22 @@ class AdminAdmin(ModelView, model=Admin):
 
     column_labels = {
         Admin.id: "id",
-        Admin.admin_id: "id Телеграм"
+        Admin.admin_id: "id Телеграм",
+        Admin.last_name: "Фамилия",
+        Admin.first_name: "Имя",
+        Admin.middle_name: "Отчество",
+        Admin.groups: "Группа"
     }
     can_export = False
 
+    column_details_exclude_list = [Admin.groups_id]
+
 
 class DialogAdmin(ModelView, model=Dialogue):
-    column_list = [Dialogue.id, Dialogue.user_id, Dialogue.admin_id, Dialogue.is_active, Dialogue.who_closed,
+    column_list = [Dialogue.id, Dialogue.created_at, Dialogue.user_id, Dialogue.admin_id, Dialogue.is_active,
+                   Dialogue.who_closed,
                    Dialogue.gradeUser, Dialogue.gradeAdmin, Dialogue.chat_name]
-    name = 'диалог'
+    name = 'Диалог'
     name_plural = "Диалог"
     icon = "fa-regular fa-comment-dots"
 
@@ -75,10 +106,10 @@ class DialogAdmin(ModelView, model=Dialogue):
 
     column_labels = {
         Dialogue.id: "id",
+        Dialogue.created_at: "Создан",
         Dialogue.user_id: "id Продавца",
         Dialogue.admin_id: "id Саппорта",
         Dialogue.is_active: "Активный",
-        Dialogue.created_at: "Создан",
         Dialogue.updated_at: "Обновлен",
         Dialogue.who_closed: "Кто закрыл",
         Dialogue.gradeUser: "Оценка Продавца",
@@ -86,32 +117,76 @@ class DialogAdmin(ModelView, model=Dialogue):
         Dialogue.chat_name: "Название чата",
     }
     can_create = False
-    # can_edit = False
-    # can_delete = False
+    can_edit = False
+    can_delete = False
     can_export = False
 
     column_sortable_list = [
         Dialogue.id,
         Dialogue.is_active,
-        Dialogue.updated_at
+        Dialogue.updated_at,
+        Dialogue.chat_name,
+        Dialogue.user_id,
+        Dialogue.admin_id,
+        Dialogue.created_at,
+        Dialogue.who_closed,
+        Dialogue.gradeUser,
+        Dialogue.gradeAdmin,
     ]
 
     column_searchable_list = [
+        Dialogue.id,
+        Dialogue.is_active,
+        Dialogue.updated_at,
+        Dialogue.chat_name,
         Dialogue.user_id,
         Dialogue.admin_id,
+        Dialogue.created_at,
+        Dialogue.who_closed,
+        Dialogue.gradeUser,
+        Dialogue.gradeAdmin,
     ]
 
 
-class AdminWeb(ModelView, model=AdminWebs):
-    column_list = [AdminWebs.email, AdminWebs.password]
+class AdminWebs(ModelView, model=AdminWeb):
+    column_list = [AdminWeb.email]
 
     name = "Администратор"
     name_plural = "Администраторы"
     icon = "fa-solid fa-lock"
 
+    column_details_exclude_list = [AdminWeb.password]
+
     column_labels = {
-        AdminWebs.email: "Логин",
-        AdminWebs.password: "Пароль",
+        AdminWeb.email: "Логин",
+    }
+    can_export = False
+
+
+class GroupAdmin(ModelView, model=Groups):
+    column_list = [Groups.name, Groups.admin_groups]
+
+    name = "Группа"
+    name_plural = "Группы"
+    icon = "fa-solid fa-users"
+
+    column_labels = {
+        Groups.name: "Название",
+        Groups.admin_groups: "Андеррайтер"
+    }
+    can_export = False
+
+
+class SalesChannelAdmin(ModelView, model=SalesChannel):
+    column_list = [SalesChannel.name, SalesChannel.user_chanel]
+
+    name = "Канал продаж"
+    name_plural = "Канал продаж"
+    icon = "fa-solid fa-cloud"
+
+    column_labels = {
+        SalesChannel.name: "Название",
+        SalesChannel.user_chanel: "Продавец"
     }
     can_export = False
 

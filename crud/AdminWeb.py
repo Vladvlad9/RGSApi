@@ -2,12 +2,12 @@ from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from crud.dao import BaseDAO
-from models import AdminWebs, create_async_session
+from models import AdminWeb, create_async_session
 from schemas.adminWebSchemas import AdminWebInDBSchema
 
 
 class CRUDAdminWeb(BaseDAO):
-    model = AdminWebs
+    model = AdminWeb
     inDBSchemas = AdminWebInDBSchema
 
     @staticmethod
@@ -15,7 +15,7 @@ class CRUDAdminWeb(BaseDAO):
     async def get_admin(email: str, password: str,
                   session: AsyncSession = None) -> AdminWebInDBSchema | None:
         admins = await session.execute(
-            select(AdminWebs).where(and_(AdminWebs.email == email, AdminWebs.password == password))
+            select(AdminWeb).where(and_(AdminWeb.email == email, AdminWeb.password == password))
         )
         if admin := admins.first():
             return AdminWebInDBSchema(**admin[0].__dict__)
