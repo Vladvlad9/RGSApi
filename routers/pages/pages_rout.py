@@ -10,6 +10,7 @@ from config import CONFIG
 from crud import CRUDUsers
 from crud.AdminCRUD import CRUDAdmin
 from crud.TelegramMessageCRUD import CRUDTelegramMessage
+from crud.groupsCRUD import CRUDGroups
 from models import User
 from schemas.TelegramMessageSchemas import TelegramMessageSchema
 
@@ -34,24 +35,25 @@ async def get_form(request: Request):
 
 @router.post("/send_message/")
 async def send_message(message: str = Form(...), extraInput: str = Form(None), selectedOption: str = Form(None)):
-    getUser = await CRUDUsers.get_all_only_id()
-    getAdmin = await CRUDAdmin.get_all_only_id()
-
-    if selectedOption == "vendor":
-        getUsersSet = set(getUser)
-        getAdminSet = set(getAdmin)
-        uniqueInUsers = getUsersSet - getAdminSet
-        getUsers = list(uniqueInUsers)
-    else:
-        getUsers = getAdmin
+    # getUser = await CRUDUsers.get_all_only_id()
+    # getAdmin = await CRUDAdmin.get_all_only_id()
+    getAdmin = await CRUDAdmin.get_admin_group_id_all(group_id=int(selectedOption))
+    group = await CRUDGroups.get_id(id=int(selectedOption))
+    # if selectedOption == "vendor":
+    #     getUsersSet = set(getUser)
+    #     getAdminSet = set(getAdmin)
+    #     uniqueInUsers = getUsersSet - getAdminSet
+    #     getUsers = list(uniqueInUsers)
+    # else:
+    #     getUsers = getAdmin
 
     telegram_bot_token = CONFIG.BOT.TOKEN
 
-    if getUsers:
-        for user in getUsers:
+    if getAdmin:
+        for admin in getAdmin:
             url = f"https://api.telegram.org/bot{telegram_bot_token}/sendMessage"
             payload = {
-                'chat_id': user,
+                'chat_id': admin.admin_id,
                 'text': message,
                 'parse_mode': 'HTML'
             }
@@ -63,5 +65,8 @@ async def send_message(message: str = Form(...), extraInput: str = Form(None), s
                 })
             async with httpx.AsyncClient() as client:
                 await client.post(url, data=payload)
-        await CRUDTelegramMessage.add(message=TelegramMessageSchema(countMessageAdmin=len(getUsers)))
+        await CRUDTelegramMessage.add(message=TelegramMessageSchema(
+            forWhom=group.name,
+            message=message,
+            countMessageAdmin=len(getAdmin)))
 

@@ -61,16 +61,23 @@
                        placeholder="Введите ссылку">
 
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="options" id="vendor" checked>
-                    <label class="form-check-label" for="vendor">
-                        Отправить продавцам
+                    <input class="form-check-input" type="radio" name="options" id="1" checked>
+                    <label class="form-check-label" for="1">
+                        Отправить Андеррайтинг
                     </label>
                 </div>
 
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="options" id="support">
-                    <label class="form-check-label" for="support">
-                        Отправить саппортам
+                    <input class="form-check-input" type="radio" name="options" id="2">
+                    <label class="form-check-label" for="2">
+                        Отправить Кураторам от СПРП
+                    </label>
+                </div>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="options" id="3">
+                    <label class="form-check-label" for="3">
+                        Отправить Кураторам по УУ
                     </label>
                 </div>
 
@@ -107,6 +114,7 @@
                 <th scope="col">Дата Отправки</th>
                 <th scope="col">Кому</th>
                 <th scope="col">Доставлено</th>
+                <th scope="col">Сообщение</th>
             </tr>
         </thead>
         <tbody>
@@ -116,6 +124,7 @@
                 <td>{{ data.created_at }}</td>
                 <td>{{ data.forWhom }}</td>
                 <td>{{ data.countMessageAdmin }}</td>
+                <td>{{ data.message }}</td>
             </tr>
             {% endfor %}
         </tbody>
