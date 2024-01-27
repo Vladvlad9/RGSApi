@@ -1,4 +1,4 @@
-from sqlalchemy import select, func
+from sqlalchemy import select, func, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 
@@ -6,6 +6,8 @@ from crud.dao import BaseDAO
 from models import User, create_async_session
 from schemas import UserInDBSchema, UserSchema
 from datetime import datetime, timedelta
+
+from schemas.userSchemas import UserSchemaExel, UserInDBSchemaExel
 
 
 class CRUDUsers(BaseDAO):
@@ -27,6 +29,20 @@ class CRUDUsers(BaseDAO):
 
     @classmethod
     @create_async_session
+    async def add_in_exel(cls, user: UserSchemaExel, session: AsyncSession = None):
+        users = cls.model(**user.dict())
+        session.add(users)
+        try:
+            await session.commit()
+        except IntegrityError as e:
+            print(e)
+        else:
+            pass
+            # await session.refresh(users)
+            # return cls.inDBSchemas(**users.__dict__)
+
+    @classmethod
+    @create_async_session
     async def get_user(cls, model_id: int, session: AsyncSession = None):
         drivers = await session.execute(
             select(cls.model)
@@ -34,6 +50,16 @@ class CRUDUsers(BaseDAO):
         )
         if driver := drivers.first():
             return cls.inDBSchemas(**driver[0].__dict__)
+
+    @classmethod
+    @create_async_session
+    async def get_user_id(cls, user_id: int, session: AsyncSession = None):
+        drivers = await session.execute(
+            select(cls.model)
+            .where(cls.model.user_id == user_id)
+        )
+        if driver := drivers.first():
+            return UserInDBSchemaExel(**driver[0].__dict__)
 
     @classmethod
     @create_async_session
@@ -80,3 +106,13 @@ class CRUDUsers(BaseDAO):
             select(cls.model.user_id)
         )
         return [get_All[0] for get_All in getAll]
+
+    @classmethod
+    @create_async_session
+    async def get_lnr_phone(cls, lnr: str, phone: str, session: AsyncSession = None):
+        drivers = await session.execute(
+            select(cls.model)
+            .where(and_(cls.model.lnr == lnr, cls.model.phone == phone))
+        )
+        if driver := drivers.first():
+            return UserInDBSchemaExel(**driver[0].__dict__)

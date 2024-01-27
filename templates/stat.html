@@ -147,27 +147,36 @@
     });
 
     $(document).ready(function(){
-    $('#download').click(function(e){
-        e.preventDefault();
-        let name = ""
-        if (getNames === "today")
-            name = "Сегодня"
-        else if (getNames === "week")
-            name = "Неделя"
-        else
-            name = "Месяц"
+        $('#download').click(function(e){
+            e.preventDefault();
+            let name = ""
+            if (getNames === "today")
+                name = "Сегодня"
+            else if (getNames === "week")
+                name = "Неделя"
+            else
+                name = "Месяц"
 
-        let data = {
-            "getAllDialogs": getAllDialogs,
-            "openDialogs": openDialogs,
-            "closeDialogs": closeDialogs,
-            "gradeUser": gradeUser,
-            "gradeAdmin": gradeAdmin,
-        }
-        let dataStr = encodeURIComponent(JSON.stringify(data));
-        window.location.href = `/admin_view/download/${name}/${dataStr}`;
+            let data = {
+                "getAllDialogs": getAllDialogs,
+                "openDialogs": openDialogs,
+                "closeDialogs": closeDialogs,
+                "gradeUser": gradeUser,
+                "gradeAdmin": gradeAdmin,
+            }
+            let dataStr = encodeURIComponent(JSON.stringify(data));
+            window.location.href = `/admin_view/download/${name}/${dataStr}`;
+        });
     });
-});
+
+    $(document).ready(function(){
+        $('#add_user').click(function(e){
+            e.preventDefault();
+
+            // Переход по указанному пути
+            window.location.href = '/admin_view/add_user';
+        });
+    });
 
 
 </script>

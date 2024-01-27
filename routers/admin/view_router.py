@@ -1,6 +1,10 @@
+import io
 import json
 
+import openpyxl
+from fastapi import Form, File, UploadFile
 from fastapi import APIRouter, Request, HTTPException
+from fastapi.responses import HTMLResponse
 from starlette.responses import JSONResponse
 from datetime import datetime, timedelta
 from fastapi.templating import Jinja2Templates
@@ -10,6 +14,8 @@ from crud.dialogCRUD import CRUDDialog
 import pandas as pd
 import os
 from urllib.parse import unquote
+
+from schemas.userSchemas import UserSchemaExel
 
 templates = Jinja2Templates(directory="templates")
 router = APIRouter(
@@ -161,7 +167,54 @@ async def download(name: str, data: str):
 
     file_path = "Statistics.xlsx"
     if os.path.exists(file_path):
-        return FileResponse(file_path, media_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        return FileResponse(file_path,
+                            media_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                             filename="Statistics.xlsx")
     else:
         raise HTTPException(status_code=404, detail="File not found")
+
+
+@router.post("/add_user", response_class=JSONResponse)
+async def add_user(request: Request, file: UploadFile = File(...)):
+    try:
+        # Чтение данных из временного файла и создание объекта io.BytesIO
+        file_content = await file.read()
+        file_io = io.BytesIO(file_content)
+
+        # Используем load_workbook без контекстного менеджера
+        file_to_read = openpyxl.load_workbook(file_io, data_only=True)
+        sheet = file_to_read['id']
+
+        users_added = 0
+        no_users_added = 0
+
+        for row in range(2, sheet.max_row + 1):
+            data = []
+            for col in range(1, 6):
+                value = sheet.cell(row, col).value
+                data.append(value)
+            user_exists = await CRUDUsers.get_lnr_phone(lnr=str(data[3]), phone=str(data[4]))
+            if not user_exists:
+                await CRUDUsers.add_in_exel(user=UserSchemaExel(
+                    last_name=data[0],
+                    first_name=data[1],
+                    middle_name=data[2],
+                    lnr=str(data[3]),
+                    phone=str(data[4])
+                ))
+                users_added += 1
+            else:
+                no_users_added += 1
+
+        if no_users_added:
+            message = f"Добавлено {users_added} пользователей\n\n" \
+                      f"Не добавлено {no_users_added} пользователей"
+        else:
+            message = f"Добавлено {users_added} пользователей"
+
+        file_to_read.close()
+
+        return {"status": "success", "message": message}
+    except Exception as e:
+        return {"status": "error", "message": f"Произошла ошибка: {e}"}
+

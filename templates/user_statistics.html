@@ -34,12 +34,46 @@
           </div>
         </div>
 
+        <div class="card-body">
+            <form onsubmit="event.preventDefault(); onSubmit();">
+                <label for="file">Выберите файл Excel:</label>
+                <input type="file" name="file" accept=".xls,.xlsx" class="form-control-file" required>
+                <button type="submit" class="btn btn-primary">Загрузить</button>
+            </form>
+    </div>
 
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+
+    async function onSubmit() {
+            const fileInput = document.querySelector('input[type="file"]');
+            const file = fileInput.files[0];
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch('/admin_view/add_user', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.status === "success") {
+                    alert(result.message);
+                    location.reload();
+                } else {
+                    alert(result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Произошла ошибка при обработке запроса.');
+            }
+        }
 
     // let ctx_user = document.getElementById('chartUser1').getContext('2d');
     // let ctx_user1 = document.getElementById('chartUser2').getContext('2d');

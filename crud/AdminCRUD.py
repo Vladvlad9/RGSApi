@@ -26,4 +26,14 @@ class CRUDAdmin(BaseDAO):
         )
         return [cls.inDBSchemas(**get_All[0].__dict__) for get_All in getAll]
 
+    @classmethod
+    @create_async_session
+    async def get_admin_id(cls, admin_id: int, session: AsyncSession = None):
+        drivers = await session.execute(
+            select(cls.model)
+            .where(cls.model.admin_id == admin_id)
+        )
+        if driver := drivers.first():
+            return cls.inDBSchemas(**driver[0].__dict__)
+
 

@@ -1,18 +1,23 @@
-from sqladmin import ModelView
+import os
+from sqladmin import ModelView, action
 from sqladmin import BaseView, expose
-
+from fastapi import HTTPException
 from crud import CRUDUsers
+from crud.AdminCRUD import CRUDAdmin
 from crud.TelegramMessageCRUD import CRUDTelegramMessage
 from crud.dialogCRUD import CRUDDialog
 from models import User, Admin, Dialogue, AdminWeb, Groups, SalesChannel
+from starlette.responses import Response, FileResponse
+from sqladmin.helpers import secure_filename
+import pandas as pd
 
 
 class UserAdmin(ModelView, model=User):
     column_list = [User.id, User.last_name, User.first_name, User.middle_name,
-                   User.user_id, User.phone, User.is_block, User.updated_at]
+                   User.user_id, User.phone, User.is_block, User.updated_at, User.lnr]
 
-    name = "Сотрудник РГС"
-    name_plural = "Сотрудник РГС"
+    name = "Продавцы"
+    name_plural = "Продавцы"
     icon = "fa-solid fa-user"
 
     column_labels = {
@@ -26,9 +31,7 @@ class UserAdmin(ModelView, model=User):
         User.first_name: "Имя",
         User.middle_name: "Отчество",
         User.quotation_number: "Номер котировки клиента",
-        User.groups: "Группа",
         User.lnr: "№ ЛНР",
-        User.groups_id: "Канал продаж",
     }
 
     column_sortable_list = [
@@ -39,11 +42,9 @@ class UserAdmin(ModelView, model=User):
         User.first_name,
         User.middle_name,
         User.lnr,
-        User.groups_id,
     ]
 
     column_searchable_list = [
-        User.user_id,
         User.user_id,
         User.phone,
         User.created_at,
@@ -53,15 +54,18 @@ class UserAdmin(ModelView, model=User):
         User.first_name,
         User.middle_name,
         User.lnr,
-        User.groups_id,
     ]
+
+    column_details_exclude_list = [User.dialogue]
+    form_excluded_columns = [User.dialogue]
 
     can_export = False
     can_view_details = True
     list_template = "user_statistics.html"
 
-    column_details_exclude_list = [User.groups_id, User.dialogue]
-    form_excluded_columns = [User.dialogue]
+    # form_include_pk = True
+    # column_details_exclude_list = [User.dialogue]
+    # form_excluded_columns = [User.dialogue]
     # details_template = "details.html"
     # edit_template = "edit.html"
     # create_template = "create.html"
@@ -71,15 +75,15 @@ class UserAdmin(ModelView, model=User):
 class AdminAdmin(ModelView, model=Admin):
     column_list = [Admin.id, Admin.admin_id, Admin.last_name, Admin.first_name, Admin.middle_name, Admin.groups]
 
-    name = "Андеррайтер"
-    name_plural = "Андеррайтеры"
+    name = "Сотрудники РГС"
+    name_plural = "Сотрудники РГС"
     icon = "fa-solid fa-headset"
 
     # list_template = "list.html"
     # details_template = "details.html"
     # edit_template = "edit.html"
     # create_template = "create.html"
-
+    form_include_pk = True
     column_labels = {
         Admin.id: "id",
         Admin.admin_id: "id Телеграм",
@@ -90,14 +94,14 @@ class AdminAdmin(ModelView, model=Admin):
     }
     can_export = False
 
-    column_details_exclude_list = [Admin.groups_id]
-    form_excluded_columns = [Admin.dialogue]
+    column_details_exclude_list = [Admin.groups_id, Admin.groups, Admin.id]
+    form_excluded_columns = [Admin.dialogue, Admin.groups_id, Admin.id]
 
 
 class DialogAdmin(ModelView, model=Dialogue):
     column_list = [Dialogue.id, Dialogue.created_at, Dialogue.user, Dialogue.admin, Dialogue.is_active,
                    Dialogue.who_closed,
-                   Dialogue.gradeUser, Dialogue.gradeAdmin, Dialogue.chat_name, Dialogue.sales_channel]
+                   Dialogue.gradeUser, Dialogue.gradeAdmin, Dialogue.chat_name]
     name = 'Диалог'
     name_plural = "Диалог"
     icon = "fa-regular fa-comment-dots"
@@ -106,23 +110,22 @@ class DialogAdmin(ModelView, model=Dialogue):
     # details_template = "details.html"
     # edit_template = "edit.html"
     # create_template = "create.html"
+    form_include_pk = True
 
     column_labels = {
         Dialogue.id: "id",
         Dialogue.created_at: "Создан",
-        Dialogue.user: "ФИО Продавца",
-        Dialogue.admin: "ФИО Саппорта",
+
         Dialogue.is_active: "Активный",
         Dialogue.updated_at: "Закрытие диалога",
         Dialogue.who_closed: "Кто закрыл",
         Dialogue.gradeUser: "Оценка Продавца",
         Dialogue.gradeAdmin: "Оценка Саппорта",
         Dialogue.chat_name: "Название чата",
-        Dialogue.sales_channel: "Название канала",
         Dialogue.dialogue_time: "Продолжительность диалога (сек)",
         Dialogue.reaction_time: "Время реакции (сек)",
     }
-    can_create = False
+    # can_create = False
     # can_edit = False
     can_delete = False
     can_export = False
@@ -152,7 +155,51 @@ class DialogAdmin(ModelView, model=Dialogue):
         Dialogue.gradeAdmin,
     ]
 
-    column_details_exclude_list = [Dialogue.sales_channel_id, Dialogue.sales_channel]
+    # column_details_exclude_list = [Dialogue.sales_channel_id, Dialogue.sales_channel]
+    # column_export_exclude_list = column_details_exclude_list
+
+    @action(
+        name="export-users",
+        label="Выгрузить диалоги",
+        include_in_schema=False,
+        add_in_detail=False,
+        add_in_list=True,
+
+    )
+    async def export_department_users(self, request) -> Response:
+        data = []
+        dialogs = await CRUDDialog.get_all()
+
+        for dialog in dialogs:
+            get_user = await CRUDUsers.get_user_id(user_id=dialog.user_id)
+            get_admin = await CRUDAdmin.get_admin_id(admin_id=dialog.admin_id)
+            data.append({
+                'id': dialog.id,
+                'Пользователь': f"{get_user.last_name} {get_user.first_name} {get_user.middle_name}",
+                'Админ': f"{get_admin.last_name} {get_admin.first_name} {get_admin.middle_name}",
+                "Создан": dialog.created_at,
+                "Активный": dialog.is_active,
+                "Закрытие диалога": dialog.updated_at,
+                "Кто закрыл": dialog.who_closed,
+                "Оценка Продавца": dialog.gradeUser,
+                "Оценка Саппорта": dialog.gradeAdmin,
+                "Название чата": dialog.chat_name,
+                "Продолжительность диалога (сек)": dialog.dialogue_time,
+                "Время реакции (сек)": dialog.reaction_time,
+            })
+        df = pd.DataFrame(data)
+
+        filename = secure_filename(self.get_export_name(export_type="csv"))
+
+        df.to_excel('Statistics.xlsx')
+
+        file_path = "Statistics.xlsx"
+        if os.path.exists(file_path):
+            return FileResponse(file_path,
+                                media_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                                filename=filename)
+        else:
+            raise HTTPException(status_code=404, detail="File not found")
 
 
 class AdminWebs(ModelView, model=AdminWeb):
@@ -182,7 +229,7 @@ class GroupAdmin(ModelView, model=Groups):
         Groups.admin_groups: "Андеррайтер"
     }
     can_export = False
-    form_excluded_columns = [Groups.user_groups, Groups.admin_groups]
+    # form_excluded_columns = [Groups.user_groups, Groups.admin_groups]
 
 
 class SalesChannelAdmin(ModelView, model=SalesChannel):
@@ -196,7 +243,7 @@ class SalesChannelAdmin(ModelView, model=SalesChannel):
         SalesChannel.name: "Название",
     }
     can_export = False
-    form_excluded_columns = [SalesChannel.dialogue]
+    # form_excluded_columns = [SalesChannel.dialogue]
 
 
 class TelegramMessageAdmin(BaseView):

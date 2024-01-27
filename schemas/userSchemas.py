@@ -3,6 +3,28 @@ from datetime import datetime
 from pydantic import BaseModel, Field
 
 
+class UserSchemaExel(BaseModel):
+
+    last_name: str = Field()
+    first_name: str = Field()
+    middle_name: str = Field()
+    lnr: str = Field()
+    phone: str
+
+
+class UserSchemaExels(BaseModel):
+
+    last_name: str = Field()
+    first_name: str = Field()
+    middle_name: str = Field()
+    lnr: str = Field()
+    phone: str
+
+
+class UserInDBSchemaExel(UserSchemaExels):
+    id: int = Field(ge=1)
+
+
 class UserSchema(BaseModel):
     user_id: int = Field()
 
@@ -16,7 +38,6 @@ class UserSchema(BaseModel):
 
     created_at: datetime = Field()
     updated_at: datetime = Field()
-    groups_id: int = Field(default=1)
 
 
 class UserInDBSchema(UserSchema):

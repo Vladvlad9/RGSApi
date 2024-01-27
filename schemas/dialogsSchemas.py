@@ -7,8 +7,12 @@ class DialogSchemas(BaseModel):
     user_id: int = Field()
     admin_id: int = Field(default=0)
     is_active: bool = Field(default=False)
-    created_at: datetime = Field(default=datetime.now())
-    updated_at: datetime = Field(default=datetime.now())
+    # created_at: datetime = Field(default=datetime.now())
+    # updated_at: datetime = Field(default=datetime.now())
+
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
     who_closed: str = Field(default="None")
     gradeUser: int = Field(default=1)
 
