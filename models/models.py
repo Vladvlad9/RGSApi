@@ -14,7 +14,7 @@ class User(Base):
     __tablename__: str = 'users'
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(BigInteger, unique=True, comment="User ID")
+    user_id = Column(BigInteger, unique=True)
 
     last_name = Column(String, default="None", comment="Last name")
     first_name = Column(String, default="None", comment="First name")
@@ -36,7 +36,7 @@ class User(Base):
     sales_channel = relationship("SalesChannel",
                                  back_populates="users", cascade="all, delete-orphan", single_parent=True)
 
-    dialogue = relationship("Dialogue", back_populates="user")
+    dialogue = relationship("Dialogue", back_populates="user", foreign_keys="Dialogue.user_id")
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} {self.middle_name}"
@@ -59,7 +59,7 @@ class Admin(Base):
     groups_id = Column(Integer, ForeignKey("groups.id"))
 
     groups = relationship("Groups", back_populates="admin_groups")
-    dialogue = relationship("Dialogue", back_populates="admin")
+    dialogue = relationship("Dialogue", back_populates="admin", foreign_keys="Dialogue.admin_id")
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} {self.middle_name}"
@@ -79,13 +79,11 @@ class Dialogue(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(
         BigInteger,
-        ForeignKey("users.user_id", ondelete="RESTRICT", onupdate="CASCADE"),
-        nullable=True,
+        ForeignKey("users.user_id", onupdate="CASCADE"),
     )
     admin_id = Column(
         BigInteger,
-        ForeignKey("admins.admin_id", ondelete="RESTRICT", onupdate="CASCADE"),
-        nullable=True,
+        ForeignKey("admins.admin_id", onupdate="CASCADE"),
     )
     is_active = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.now, comment="Creation timestamp")
@@ -99,8 +97,14 @@ class Dialogue(Base):
     dialogue_time = Column(Float)
     reaction_time = Column(Float)
 
-    user = relationship("User", back_populates="dialogue", cascade="all, delete-orphan", single_parent=True)
-    admin = relationship("Admin", back_populates="dialogue", cascade="all, delete-orphan", single_parent=True)
+    user = relationship(
+        "User",
+        back_populates="dialogue",
+    )
+    admin = relationship(
+        "Admin",
+        back_populates="dialogue",
+    )
 
     def __str__(self):
         return f"Диалог №{self.id}"

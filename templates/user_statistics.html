@@ -2,6 +2,19 @@
  {% block content %}
  {{ super() }}
 
+ <div class="col-12">
+    <div class="card">
+        <div class="card-body">
+            <form onsubmit="event.preventDefault(); onSubmit();">
+                <label for="file">Выберите файл Excel:</label>
+                <input type="file" name="file" accept=".xls,.xlsx" class="form-control-file" required>
+                <button type="submit" class="btn btn-primary">Загрузить</button>
+            </form>
+        </div>
+
+    </div>
+</div>
+
 <div class="col-12">
     <div class="card">
         <div class="card-header">
@@ -33,14 +46,6 @@
             </div>
           </div>
         </div>
-
-        <div class="card-body">
-            <form onsubmit="event.preventDefault(); onSubmit();">
-                <label for="file">Выберите файл Excel:</label>
-                <input type="file" name="file" accept=".xls,.xlsx" class="form-control-file" required>
-                <button type="submit" class="btn btn-primary">Загрузить</button>
-            </form>
-    </div>
 
     </div>
 </div>

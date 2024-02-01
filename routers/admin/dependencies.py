@@ -2,6 +2,7 @@ from datetime import datetime
 
 from fastapi import HTTPException, Request, status, Depends
 from jose import jwt, JWTError
+from starlette.responses import RedirectResponse
 
 from config import CONFIG
 from exeptions import TokenExpiredException, TokenAbsentException, IncorrectTokenFormatException
@@ -22,7 +23,8 @@ async def get_current_user(token: str = Depends(get_token)):
                              key=CONFIG.AUTH.SECRET_KEY,
                              algorithms=CONFIG.AUTH.ALGORITHM)
     except JWTError:
-        raise IncorrectTokenFormatException
+        return RedirectResponse("/admin/login")
+        # raise IncorrectTokenFormatException
 
     expire = payload.get("exp")
     if (not expire) or (int(expire) < datetime.utcnow().timestamp()):

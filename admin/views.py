@@ -14,7 +14,7 @@ import pandas as pd
 
 class UserAdmin(ModelView, model=User):
     column_list = [User.id, User.last_name, User.first_name, User.middle_name,
-                   User.user_id, User.phone, User.is_block, User.updated_at, User.lnr]
+                   User.user_id, User.phone, User.is_block, User.updated_at, User.lnr, User.sales_channel]
 
     name = "Продавцы"
     name_plural = "Продавцы"
@@ -32,6 +32,7 @@ class UserAdmin(ModelView, model=User):
         User.middle_name: "Отчество",
         User.quotation_number: "Номер котировки клиента",
         User.lnr: "№ ЛНР",
+        User.sales_channel: "Филиал",
     }
 
     column_sortable_list = [
@@ -56,7 +57,7 @@ class UserAdmin(ModelView, model=User):
         User.lnr,
     ]
 
-    column_details_exclude_list = [User.dialogue]
+    column_details_exclude_list = [User.dialogue, User.sales_channel_id]
     form_excluded_columns = [User.dialogue]
 
     can_export = False
@@ -94,13 +95,13 @@ class AdminAdmin(ModelView, model=Admin):
     }
     can_export = False
 
-    column_details_exclude_list = [Admin.groups_id, Admin.groups, Admin.id]
+    column_details_exclude_list = [Admin.groups_id, Admin.groups, Admin.id, Admin.dialogue]
     form_excluded_columns = [Admin.dialogue, Admin.groups_id, Admin.id]
 
 
 class DialogAdmin(ModelView, model=Dialogue):
-    column_list = [Dialogue.id, Dialogue.created_at, Dialogue.user, Dialogue.admin, Dialogue.is_active,
-                   Dialogue.who_closed,
+    column_list = [Dialogue.id, Dialogue.created_at, Dialogue.admin_id, Dialogue.user_id,  Dialogue.is_active,
+                   Dialogue.who_closed, Dialogue.user_id,
                    Dialogue.gradeUser, Dialogue.gradeAdmin, Dialogue.chat_name]
     name = 'Диалог'
     name_plural = "Диалог"
@@ -110,13 +111,15 @@ class DialogAdmin(ModelView, model=Dialogue):
     # details_template = "details.html"
     # edit_template = "edit.html"
     # create_template = "create.html"
-    form_include_pk = True
+    # form_include_pk = True
 
     column_labels = {
         Dialogue.id: "id",
         Dialogue.created_at: "Создан",
-
+        Dialogue.admin: "Сотрудник РГС",
+        Dialogue.user: "Продавец",
         Dialogue.is_active: "Активный",
+        Dialogue.user_id: "ID Продавца",
         Dialogue.updated_at: "Закрытие диалога",
         Dialogue.who_closed: "Кто закрыл",
         Dialogue.gradeUser: "Оценка Продавца",
@@ -125,10 +128,11 @@ class DialogAdmin(ModelView, model=Dialogue):
         Dialogue.dialogue_time: "Продолжительность диалога (сек)",
         Dialogue.reaction_time: "Время реакции (сек)",
     }
-    # can_create = False
+    can_create = False
     # can_edit = False
     can_delete = False
     can_export = False
+
     column_sortable_list = [
         Dialogue.id,
         Dialogue.is_active,
@@ -156,7 +160,9 @@ class DialogAdmin(ModelView, model=Dialogue):
     ]
 
     # column_details_exclude_list = [Dialogue.sales_channel_id, Dialogue.sales_channel]
-    # column_export_exclude_list = column_details_exclude_list
+
+    # column_details_exclude_list = [Dialogue.admin, Dialogue.user]
+    # form_excluded_columns = [Dialogue.admin, Dialogue.user]
 
     @action(
         name="export-users",
@@ -229,7 +235,8 @@ class GroupAdmin(ModelView, model=Groups):
         Groups.admin_groups: "Андеррайтер"
     }
     can_export = False
-    # form_excluded_columns = [Groups.user_groups, Groups.admin_groups]
+    form_excluded_columns = [Groups.admin_groups]
+    column_details_exclude_list = [Groups.admin_groups]
 
 
 class SalesChannelAdmin(ModelView, model=SalesChannel):
@@ -243,7 +250,8 @@ class SalesChannelAdmin(ModelView, model=SalesChannel):
         SalesChannel.name: "Название",
     }
     can_export = False
-    # form_excluded_columns = [SalesChannel.dialogue]
+    column_details_exclude_list = [SalesChannel.users]
+    form_excluded_columns = [SalesChannel.users]
 
 
 class TelegramMessageAdmin(BaseView):
