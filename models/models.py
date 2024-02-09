@@ -13,18 +13,20 @@ def get_current_time():
 class User(Base):
     __tablename__: str = 'users'
 
+    # id = Column(Integer, autoincrement=True, unique=True)
+    # user_id = Column(BigInteger, primary_key=True)
     id = Column(Integer, primary_key=True)
     user_id = Column(BigInteger, unique=True)
 
-    last_name = Column(String, default="None", comment="Last name")
-    first_name = Column(String, default="None", comment="First name")
-    middle_name = Column(String, default="None", comment="Middle name")
+    last_name = Column(String, default="None", comment="Last name", unique=True)
+    first_name = Column(String, default="None", comment="First name", unique=True)
+    middle_name = Column(String, default="None", comment="Middle name", unique=True)
 
-    lnr = Column(String, comment="number LNR")
+    lnr = Column(String, comment="number LNR", unique=True)
 
-    phone = Column(String, comment="User phone number")
+    phone = Column(String, comment="User phone number", unique=True)
     is_block = Column(Boolean, comment="Is the user active?")
-    quotation_number = Column(String)
+    quotation_number = Column(String, unique=True)
     created_at = Column(DateTime, comment="Creation timestamp")
     updated_at = Column(DateTime, onupdate=datetime.now, comment="Last update timestamp")
 
@@ -79,11 +81,11 @@ class Dialogue(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(
         BigInteger,
-        ForeignKey("users.user_id", onupdate="CASCADE"),
+        ForeignKey("users.id", onupdate="CASCADE"),
     )
     admin_id = Column(
         BigInteger,
-        ForeignKey("admins.admin_id", onupdate="CASCADE"),
+        ForeignKey("admins.id", onupdate="CASCADE"),
     )
     is_active = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.now, comment="Creation timestamp")

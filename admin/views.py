@@ -1,7 +1,12 @@
 import os
+from datetime import datetime
+
 from sqladmin import ModelView, action
 from sqladmin import BaseView, expose
 from fastapi import HTTPException
+from sqladmin.fields import QuerySelectField
+from sqladmin.widgets import Select2TagsWidget
+
 from crud import CRUDUsers
 from crud.AdminCRUD import CRUDAdmin
 from crud.TelegramMessageCRUD import CRUDTelegramMessage
@@ -10,6 +15,12 @@ from models import User, Admin, Dialogue, AdminWeb, Groups, SalesChannel
 from starlette.responses import Response, FileResponse
 from sqladmin.helpers import secure_filename
 import pandas as pd
+from wtforms import Form, StringField, FieldList, SelectMultipleField
+from wtforms.validators import DataRequired
+
+
+class MyForm(Form):
+    tags = StringField('is_block', validators=[DataRequired()], widget=Select2TagsWidget())
 
 
 class UserAdmin(ModelView, model=User):
@@ -132,7 +143,8 @@ class DialogAdmin(ModelView, model=Dialogue):
     # can_edit = False
     can_delete = False
     can_export = False
-
+    form_include_pk = True
+    tags = SelectMultipleField(Dialogue.admin, validators=[DataRequired()], widget=Select2TagsWidget())
     column_sortable_list = [
         Dialogue.id,
         Dialogue.is_active,
